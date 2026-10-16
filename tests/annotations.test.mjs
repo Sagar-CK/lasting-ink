@@ -229,3 +229,62 @@ test("annotations stay isolated across URLs and hash-based app routes", async ()
   assert.equal(p.root.querySelectorAll(".overlay path").length, 1);
   p.close();
 });
+
+test("Cmd/Ctrl undo and redo work on webpages and PDFs without taking text-editor shortcuts", async () => {
+  for (const pdf of [false, true]) {
+    const p = await page({ pdf });
+    try {
+      if (!pdf) p.click(".launcher");
+      const key = (target, options) => {
+        const event = new p.w.KeyboardEvent("keydown", {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          ...options,
+        });
+        target.dispatchEvent(event);
+        return event.defaultPrevented;
+      };
+      assert.equal(key(p.w.document, { key: "z", metaKey: true }), false);
+      p.click('[data-mode="pen"]');
+      p.pointer("pointerdown", 180, 200);
+      p.pointer("pointermove", 300, 300);
+      p.pointer("pointerup", 300, 300);
+      await tick();
+      assert.equal(key(p.w.document, { key: "z", metaKey: true }), true);
+      await tick();
+      assert.equal(Object.keys(p.store).length, 0);
+      assert.equal(
+        key(p.w.document, { key: "Z", metaKey: true, shiftKey: true }),
+        true,
+      );
+      await tick();
+      assert.equal(Object.keys(p.store).length, 1);
+      assert.equal(key(p.w.document, { key: "z", ctrlKey: true }), true);
+      await tick();
+      assert.equal(key(p.w.document, { key: "y", ctrlKey: true }), true);
+      await tick();
+      assert.equal(Object.keys(p.store).length, 1);
+      const input = p.w.document.createElement("input");
+      p.w.document.body.append(input);
+      assert.equal(key(input, { key: "z", metaKey: true }), false);
+      const editable = p.w.document.createElement("div");
+      editable.setAttribute("contenteditable", "plaintext-only");
+      p.w.document.body.append(editable);
+      assert.equal(key(editable, { key: "z", ctrlKey: true }), false);
+      p.click('[data-mode="note"]');
+      p.pointer("pointerdown", 450, 250);
+      await tick();
+      assert.equal(
+        key(p.root.querySelector("textarea"), { key: "z", metaKey: true }),
+        false,
+      );
+      assert.equal(Object.keys(p.store).length, 2);
+      p.click('[data-action="hide"]');
+      assert.equal(key(p.w.document, { key: "z", metaKey: true }), false);
+      assert.equal(Object.keys(p.store).length, 2);
+    } finally {
+      p.close();
+    }
+  }
+});

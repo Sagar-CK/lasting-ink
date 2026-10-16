@@ -4,7 +4,7 @@
 
 Annotate webpages and PDFs. Your marks return when you reopen the page.
 
-[Download extension](https://github.com/Sagar-CK/lasting-ink/releases/latest/download/lasting-ink-0.4.0.zip)
+[Download extension](https://github.com/Sagar-CK/lasting-ink/releases/latest/download/lasting-ink-0.4.1.zip)
 
 ![PDF annotations with zoom and page controls](docs/example.png)
 
@@ -33,6 +33,10 @@ Requires Arc or Chrome with Chromium 151+.
 PDF controls are at the top: page navigation, zoom percentage, fit to width/page, and download. The download button saves the original PDF. Scroll normally with any annotation tool selected.
 
 Choose a color and stroke size from the round controls. Drag notes by their top edge. Press **Esc** to browse. Collapse the toolbar with **×**; reopen it with the pen button.
+
+**Cmd/Ctrl+Z** undoes an annotation; **Cmd/Ctrl+Shift+Z** redoes it. **Ctrl+Y** also redoes on Windows/Linux. Inside a note or text field, normal text undo applies. Annotation history lasts for the current visit.
+
+In PDFs, **Cmd/Ctrl +/−** zooms, **Cmd/Ctrl+0** resets zoom, and **Cmd/Ctrl+S** downloads the PDF.
 
 Annotations save automatically in this browser profile. No account or cloud sync. On webpages, the export button downloads all annotations as JSON; import is not available. Removing the extension clears its data.
 
