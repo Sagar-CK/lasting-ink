@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Lasting Ink",
+  "version": "0.3.0",
+  "description": "Annotate webpages and PDFs.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Lasting Ink",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["annotator.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "mime_types_handler": {
+    "application/pdf": {
+      "handler_url": "viewer.html",
+      "can_embed": true
+    }
+  },
+  "minimum_chrome_version": "151",
+  "web_accessible_resources": [
+    {
+      "resources": ["vendor/geist.woff2"],
+      "matches": ["http://*/*", "https://*/*"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
