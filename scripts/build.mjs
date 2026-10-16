@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import * as icons from "@hugeicons/core-free-icons";
 import sharp from "sharp";
 import { format } from "prettier";
+import { build } from "esbuild";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const extension = path.join(root, "extension");
@@ -59,6 +60,10 @@ for (const name of Object.keys(names)) {
   await fs.writeFile(path.join(root, "docs/icons", name + ".svg"), svg(name));
 }
 const viewerNames = {
+  sidebar: "SidebarLeft01Icon",
+  search: "Search01Icon",
+  menu: "MoreHorizontalIcon",
+  close: "Cancel01Icon",
   previous: "ArrowUp01Icon",
   next: "ArrowDown01Icon",
   minus: "MinusSignIcon",
@@ -73,6 +78,16 @@ const viewerIcons = Object.fromEntries(
       .replaceAll('stroke="#292929"', 'stroke="currentColor"'),
   ]),
 );
+// A sheet inside a viewport for page-fit; horizontal expansion for width-fit.
+const fitPaths = {
+  fitPage:
+    '<path d="M4 8V4h4m8 0h4v4m0 8v4h-4M8 20H4v-4"/><rect x="8" y="6" width="8" height="12" rx="1"/>',
+  fitWidth:
+    '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M6 12h12m-9-3-3 3 3 3m6-6 3 3-3 3"/>',
+};
+for (const [name, paths] of Object.entries(fitPaths))
+  viewerIcons[name] =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 await fs.writeFile(
   path.join(extension, "viewer-icons.js"),
   await format(
@@ -98,6 +113,30 @@ const copies = [
   ["pdfjs-dist/build/pdf.mjs", "vendor/pdf.mjs"],
   ["pdfjs-dist/build/pdf.worker.mjs", "vendor/pdf.worker.mjs"],
   ["pdfjs-dist/web/pdf_viewer.css", "vendor/pdf_viewer.css"],
+  ["pdfjs-dist/web/pdf_viewer.mjs", "vendor/pdf_viewer.mjs"],
+  ["pdfjs-dist/web/images", "vendor/images"],
+  ["tesseract.js/dist/tesseract.esm.min.js", "vendor/tesseract.mjs"],
+  ["tesseract.js/dist/worker.min.js", "vendor/ocr-worker.js"],
+  [
+    "tesseract.js/dist/worker.min.js.LICENSE.txt",
+    "vendor/TESSERACT-LICENSE.txt",
+  ],
+  ["tesseract.js/LICENSE.md", "vendor/TESSERACT-JS-LICENSE.md"],
+  ["tesseract.js-core/LICENSE", "vendor/TESSERACT-CORE-LICENSE.txt"],
+  ["@tesseract.js-data/eng/README.md", "vendor/OCR-DATA-README.md"],
+  [
+    "tesseract.js-core/tesseract-core-simd-lstm.wasm.js",
+    "vendor/tesseract-core-simd-lstm.wasm.js",
+  ],
+  [
+    "tesseract.js-core/tesseract-core-simd-lstm.wasm",
+    "vendor/tesseract-core-simd-lstm.wasm",
+  ],
+  [
+    "@tesseract.js-data/eng/4.0.0/eng.traineddata.gz",
+    "vendor/eng.traineddata.gz",
+  ],
+  ["pdf-lib/LICENSE.md", "vendor/PDF-LIB-LICENSE.md"],
   ["pdfjs-dist/cmaps", "vendor/cmaps"],
   ["pdfjs-dist/standard_fonts", "vendor/standard_fonts"],
   ["pdfjs-dist/LICENSE", "vendor/LICENSE"],
@@ -113,4 +152,12 @@ for (const [from, to] of copies) {
     recursive: true,
   });
 }
+await build({
+  stdin: { contents: 'export * from "pdf-lib";', resolveDir: root },
+  bundle: true,
+  platform: "browser",
+  format: "esm",
+  minify: true,
+  outfile: path.join(extension, "vendor/pdf-lib.mjs"),
+});
 console.log("Extension assets ready.");

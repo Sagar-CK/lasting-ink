@@ -1,3 +1,5 @@
+import { startSync } from "./sync.js";
+startSync();
 // PDF documents are handled by mime_types_handler without changing their URL.
 chrome.action.onClicked.addListener(async (tab) => {
   if (!tab.id) return;

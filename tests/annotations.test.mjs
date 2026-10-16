@@ -77,7 +77,7 @@ async function page({
     },
   };
   w.eval(code);
-  await w.startLastingInk({
+  const api = await w.startLastingInk({
     url,
     pdf,
     surfaces: () => [
@@ -100,6 +100,7 @@ async function page({
       }),
     );
   return {
+    api,
     w,
     dom,
     root,
@@ -286,5 +287,43 @@ test("Cmd/Ctrl undo and redo work on webpages and PDFs without taking text-edito
     } finally {
       p.close();
     }
+  }
+});
+
+test("PDF drawings support recolor, keyboard move/resize, deletion, and undo", async () => {
+  const p = await page({ pdf: true });
+  try {
+    p.click('[data-mode="pen"]');
+    p.pointer("pointerdown", 200, 200);
+    p.pointer("pointermove", 300, 300);
+    p.pointer("pointerup", 300, 300);
+    await tick();
+    const item = p.api.list()[0];
+    p.api.select(item.id);
+    p.api.update(item.id, { color: "#ff0000", width: 8 });
+    await p.api.flush();
+    assert.equal(p.api.list()[0].color, "#ff0000");
+    assert.equal(p.api.list()[0].pdfWidth, 6);
+    p.w.document.dispatchEvent(
+      new p.w.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+    );
+    await tick();
+    assert.ok(p.api.list()[0].points[0][0] > item.points[0][0]);
+    p.w.document.dispatchEvent(
+      new p.w.KeyboardEvent("keydown", {
+        key: "ArrowDown",
+        altKey: true,
+        bubbles: true,
+      }),
+    );
+    await tick();
+    p.api.remove(item.id);
+    await tick();
+    assert.equal(p.api.list().length, 0);
+    p.click('[data-action="undo"]');
+    await tick();
+    assert.equal(p.api.list().length, 1);
+  } finally {
+    p.close();
   }
 });

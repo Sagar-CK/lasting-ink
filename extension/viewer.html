@@ -2,84 +2,249 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>PDF</title>
     <link rel="stylesheet" href="vendor/pdf_viewer.css" />
     <link rel="stylesheet" href="viewer.css" />
   </head>
   <body>
     <header aria-label="PDF controls">
-      <span id="title">Opening PDF…</span>
-      <div class="controls">
-        <div class="group" aria-label="Page navigation">
-          <button
-            id="previous"
-            title="Previous page"
-            aria-label="Previous page"
-            disabled
-            data-icon="previous"
-          ></button>
-          <input
-            id="page-number"
-            aria-label="Page number"
-            inputmode="numeric"
-            value="1"
-            disabled
-          />
-          <span id="page-count" aria-label="Total pages">/ —</span>
-          <button
-            id="next"
-            title="Next page"
-            aria-label="Next page"
-            disabled
-            data-icon="next"
-          ></button>
-        </div>
+      <span id="title" hidden>PDF</span>
+      <div id="zoom-controls" class="controls">
+        <button
+          id="sidebar-toggle"
+          title="Show sidebar"
+          aria-label="Show sidebar"
+          aria-expanded="false"
+          data-icon="sidebar"
+        ></button>
+        <button
+          id="find-toggle"
+          title="Find in document (Cmd/Ctrl+F)"
+          aria-label="Find in document"
+          data-icon="search"
+        ></button>
         <span class="separator"></span>
-        <div class="group" aria-label="Zoom">
-          <button
-            id="zoom-out"
-            title="Zoom out"
-            aria-label="Zoom out"
-            disabled
-            data-icon="minus"
-          ></button>
-          <input
-            id="zoom"
-            aria-label="Zoom percentage"
-            inputmode="decimal"
-            value="100%"
-            disabled
-          />
-          <button
-            id="zoom-in"
-            title="Zoom in"
-            aria-label="Zoom in"
-            disabled
-            data-icon="plus"
-          ></button>
-        </div>
-        <select id="fit" aria-label="Page fit" disabled>
-          <option value="auto">Automatic</option>
-          <option value="width">Fit to width</option>
-          <option value="page">Fit to page</option>
-          <option value="actual">Actual size</option>
-          <option value="custom" hidden>Custom zoom</option>
-        </select>
+        <button
+          id="zoom-out"
+          title="Zoom out"
+          aria-label="Zoom out"
+          data-icon="minus"
+        ></button>
+        <input
+          id="zoom"
+          aria-label="Zoom percentage"
+          inputmode="decimal"
+          value="100%"
+        />
+        <button
+          id="zoom-in"
+          title="Zoom in"
+          aria-label="Zoom in"
+          data-icon="plus"
+        ></button>
+        <button
+          id="fit"
+          title="Fit to width"
+          aria-label="Fit to width"
+          data-icon="fitWidth"
+        ></button>
       </div>
-      <a
-        id="download"
-        class="button"
-        title="Download original PDF"
-        aria-label="Download original PDF"
-        aria-disabled="true"
-        data-icon="download"
-      ></a>
+      <div
+        id="page-controls"
+        class="group"
+        role="group"
+        aria-label="Page navigation"
+      >
+        <button
+          id="previous"
+          title="Previous page"
+          aria-label="Previous page"
+          data-icon="previous"
+        ></button>
+        <input
+          id="page-number"
+          aria-label="Page number"
+          inputmode="numeric"
+          value="1"
+        />
+        <span id="page-count">/ —</span>
+        <button
+          id="next"
+          title="Next page"
+          aria-label="Next page"
+          data-icon="next"
+        ></button>
+      </div>
+      <div id="right-controls">
+        <div id="annotation-tools" role="group" aria-label="Annotations"></div>
+        <button
+          id="download"
+          title="Download with annotations"
+          aria-label="Download with annotations"
+          data-icon="download"
+        ></button>
+        <button
+          id="menu-toggle"
+          title="Document options"
+          aria-label="Document options"
+          aria-expanded="false"
+          data-icon="menu"
+        ></button>
+      </div>
+      <div id="findbar" hidden role="search">
+        <input
+          id="find-query"
+          aria-label="Search PDF text"
+          placeholder="Find in document…"
+          type="search"
+        />
+        <span id="find-count" role="status"></span>
+        <button
+          id="find-previous"
+          aria-label="Previous match"
+          data-icon="previous"
+        ></button>
+        <button
+          id="find-next"
+          aria-label="Next match"
+          data-icon="next"
+        ></button>
+        <label><input id="find-case" type="checkbox" /> Match case</label>
+        <button
+          id="find-close"
+          aria-label="Close search"
+          data-icon="close"
+        ></button>
+      </div>
     </header>
-    <div id="viewport" tabindex="0" aria-label="PDF document">
-      <main id="pages"></main>
-      <div id="error" role="alert"></div>
+    <div id="document-menu" class="menu" hidden>
+      <button id="save-annotated">Download with annotations</button>
+      <button id="save-original">Download original</button>
+      <button id="print">Print…</button>
+      <button id="rotate">Rotate clockwise</button>
+      <button id="bookmark-current">Bookmark this page</button>
+      <label><input id="two-page" type="checkbox" /> Two-page view</label>
+      <button id="present">Presentation mode</button>
+      <button id="ocr">Recognize scanned text…</button>
+      <hr />
+      <button id="open-local">Open a local PDF…</button>
+      <button id="backup">Export annotation backup</button>
+      <button id="restore">Import annotation backup…</button>
+      <hr />
+      <label
+        ><input id="sync-enabled" type="checkbox" /> Sync through browser
+        account</label
+      >
+      <button id="sync-now">Sync now</button>
+      <span id="sync-status" role="status"></span>
     </div>
+    <aside id="sidebar" hidden aria-label="Document navigation">
+      <div id="sidebar-tabs" role="tablist" aria-label="Sidebar sections">
+        <button role="tab" data-panel="thumbnails" aria-selected="true">
+          Pages
+        </button>
+        <button role="tab" data-panel="outline" aria-selected="false">
+          Outline
+        </button>
+        <button role="tab" data-panel="notes" aria-selected="false">
+          Notes
+        </button>
+        <button role="tab" data-panel="attachments" aria-selected="false">
+          Files
+        </button>
+      </div>
+      <section
+        id="thumbnails"
+        role="tabpanel"
+        aria-label="Page thumbnails"
+      ></section>
+      <section
+        id="outline"
+        role="tabpanel"
+        aria-label="Document outline"
+        hidden
+      ></section>
+      <section id="notes" role="tabpanel" aria-label="Annotations" hidden>
+        <input
+          id="note-filter"
+          type="search"
+          placeholder="Find a note or highlight…"
+          aria-label="Search annotations"
+        />
+        <div id="annotation-editor" hidden>
+          <label>Color <input id="annotation-color" type="color" /></label>
+          <label
+            >Width
+            <input id="annotation-width" type="range" min="1" max="16" step="1"
+          /></label>
+          <button id="delete-annotation">Delete annotation</button>
+        </div>
+        <div id="note-list"></div>
+      </section>
+      <section
+        id="attachments"
+        role="tabpanel"
+        aria-label="Embedded files"
+        hidden
+      ></section>
+    </aside>
+    <div id="viewport" role="main" tabindex="0" aria-label="PDF document">
+      <div id="pages" class="pdfViewer"></div>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+    <progress id="progress" hidden></progress>
+    <dialog id="password-dialog">
+      <form method="dialog">
+        <h2>Password required</h2>
+        <p id="password-message">Enter the password for this PDF.</p>
+        <input
+          id="password"
+          type="password"
+          autocomplete="off"
+          aria-label="PDF password"
+          required
+        />
+        <div>
+          <button value="cancel" formnovalidate>Cancel</button
+          ><button value="open">Open PDF</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="print-dialog">
+      <form method="dialog">
+        <h2>Print PDF</h2>
+        <label
+          ><input id="print-annotations" type="checkbox" checked /> Include
+          annotations</label
+        >
+        <div>
+          <button value="cancel">Cancel</button
+          ><button value="print">Print</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="ocr-dialog">
+      <form method="dialog">
+        <h2>Recognize scanned text</h2>
+        <p>Runs on this device. No PDF content is uploaded.</p>
+        <p>English recognition is included. Existing PDF text is kept.</p>
+        <label
+          >Pages <input id="ocr-pages" placeholder="All, or 1-5, 8" value="All"
+        /></label>
+        <div>
+          <button value="cancel">Cancel</button
+          ><button value="run">Recognize text</button>
+        </div>
+      </form>
+    </dialog>
+    <input id="local-file" type="file" accept="application/pdf,.pdf" hidden />
+    <input
+      id="backup-file"
+      type="file"
+      accept="application/json,.json"
+      hidden
+    />
     <script src="annotator.js"></script>
     <script type="module" src="viewer.js"></script>
   </body>

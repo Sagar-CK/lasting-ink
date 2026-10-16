@@ -6,7 +6,7 @@ export const clampZoom = (value) =>
   Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, value));
 export function fitZoom(mode, size, page) {
   const width = Math.max(1, size.width - 48) / (page.width * CSS_UNITS);
-  const height = Math.max(1, size.height - 124) / (page.height * CSS_UNITS);
+  const height = Math.max(1, size.height - 48) / (page.height * CSS_UNITS);
   return clampZoom(
     mode === "page"
       ? Math.min(width, height)

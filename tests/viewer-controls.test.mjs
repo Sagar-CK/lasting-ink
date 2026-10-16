@@ -10,7 +10,7 @@ import {
 test("fit modes account for PDF points, viewport padding, and page orientation", () => {
   const size = { width: 1200, height: 800 };
   assert.equal(fitZoom("width", size, { width: 612, height: 792 }), 1152 / 816);
-  assert.equal(fitZoom("page", size, { width: 612, height: 792 }), 676 / 1056);
+  assert.equal(fitZoom("page", size, { width: 612, height: 792 }), 752 / 1056);
   assert.equal(fitZoom("auto", size, { width: 612, height: 792 }), 1);
   assert.equal(
     fitZoom("page", { width: 800, height: 1200 }, { width: 792, height: 612 }),

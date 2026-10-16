@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Lasting Ink",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Annotate webpages and PDFs.",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "action": {
     "default_title": "Lasting Ink",
@@ -25,7 +26,7 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; object-src 'self'"
   },
   "mime_types_handler": {
     "application/pdf": {

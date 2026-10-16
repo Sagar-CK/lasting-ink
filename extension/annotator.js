@@ -429,9 +429,14 @@
     surfaces,
     pdf = false,
     topInset = 0,
+    onTopInsetChange = () => {},
+    toolbarMount = null,
+    storageKey = null,
+    viewportElement = null,
+    onChange = () => {},
   }) {
     let currentUrl = canonical(url, pdf),
-      prefix = "lasting-ink:v1:" + currentUrl + "|",
+      prefix = "lasting-ink:v1:" + (storageKey || currentUrl) + "|",
       items = new Map(),
       undo = [],
       redo = [],
@@ -447,7 +452,9 @@
       active = null,
       savedCount = 0,
       saveError = false,
-      loadGeneration = 0;
+      loadGeneration = 0,
+      selectedId = null;
+    const pendingSaves = new Set();
     if (typeof FontFace !== "undefined") {
       const face = new FontFace(
         "Lasting Ink Geist",
@@ -461,6 +468,7 @@
     }
     const host = document.createElement("div");
     host.dataset.lastingInk = "true";
+    if (pdf) host.dataset.pdf = "true";
     host.style.cssText =
       "position:fixed!important;inset:0!important;z-index:2147483646!important;pointer-events:none!important;display:block!important;contain:layout style!important;";
     const shadow = host.attachShadow({ mode: "open" });
@@ -477,13 +485,18 @@
     .notes{position:fixed;inset:0;pointer-events:none}.note{position:absolute;pointer-events:auto;width:220px;background:#fff;box-shadow:0 0 0 1px #0000000b,0 3px 8px #00000006,0 10px 24px #0000000d;border-radius:14px;overflow:hidden;color:#303030}.note-head{height:30px;padding:4px 6px 0 10px;display:flex;align-items:center;justify-content:space-between;cursor:grab;user-select:none;color:#b5b5b5}.note-head:active{cursor:grabbing}.note-head>svg{width:14px;height:14px}.note-head>div{display:flex;gap:1px}.note-head button{display:grid;place-items:center;width:25px;height:25px;padding:5px;border:0;background:transparent;color:#999;border-radius:50%}.note-head button:hover{background:#f1f1f1;color:#444}.note-head button svg{width:14px;height:14px}.note textarea{display:block;resize:vertical;min-height:100px;width:100%;padding:4px 14px 14px;border:0;outline:none;background:transparent;color:inherit;line-height:1.55;font-size:13px}.note textarea::placeholder{color:#aaa}.note.collapsed textarea{display:none}.note.collapsed{width:110px}
     .launcher{position:fixed;right:22px;bottom:22px;pointer-events:auto;display:grid;place-items:center;width:44px;height:44px;padding:12px;background:#fff;color:#555;border:0;border-radius:50%;box-shadow:0 0 0 1px #0000000a,0 3px 14px #00000012}.launcher:hover{color:#111;background:#fafafa}.launcher svg{width:20px;height:20px}.hidden{display:none!important}.status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
     @media(max-width:650px){.toolbar{gap:0;padding:4px;bottom:12px;flex-wrap:wrap;justify-content:center;border-radius:23px}.tools{gap:0}.tool{min-width:36px;width:36px;height:36px;padding:9px}.divider{margin:0 2px}.hint{bottom:100px}.popover{right:10px;bottom:58px}}
+    :host([data-pdf]) .toolbar{top:48px;bottom:auto;left:0;transform:none;width:100%;max-width:none;min-height:52px;justify-content:center;flex-wrap:wrap;border-radius:0;background:#fafafa;box-shadow:0 1px 0 #00000009}
+    :host([data-pdf]) .tools{flex-wrap:wrap;justify-content:center}
+    :host([data-pdf]) .popover{top:calc(100% + 8px);bottom:auto;right:8px;max-width:calc(100vw - 16px);flex-wrap:wrap}
+    :host([data-pdf]) .launcher{top:48px;bottom:auto;right:8px;width:44px;height:44px;border-radius:0 0 14px 14px;background:#fafafa}
+    :host([data-pdf]) .hint{top:calc(var(--ink-top-inset,100px) + 8px);bottom:auto;max-width:calc(100vw - 24px);white-space:normal}
     @media(prefers-reduced-motion:reduce){*{transition:none!important}}
     </style><svg class="overlay" aria-hidden="true"></svg><div class="capture"></div><div class="notes"></div><div class="hint" role="status"></div><div class="toolbar" role="toolbar" aria-label="Lasting Ink annotation tools"><div class="tools">${[
-      ["select", "Browse (V)"],
-      ["highlight", "Text highlight (H)"],
-      ["pen", "Pen (P)"],
-      ["marker", "Freehand highlighter (M)"],
-      ["note", "Sticky note (N)"],
+      ["select", "Select (V)"],
+      ["highlight", "Highlight text (H)"],
+      ["pen", "Draw (P)"],
+      ["marker", "Highlighter (M)"],
+      ["note", "Add comment (N)"],
       ["box", "Rectangle (R)"],
       ["arrow", "Arrow (A)"],
       ["erase", "Eraser (E)"],
@@ -496,15 +509,94 @@
         "",
       )}</div><div class="divider"></div><button class="tool color-button" data-action="color" title="Color" aria-label="Ink color" aria-expanded="false"><span class="color-dot"></span></button><button class="tool width-button" data-action="width" title="Stroke size" aria-label="Stroke size" aria-expanded="false"><span class="width-dot"></span></button><div class="popover color-popover hidden" role="group" aria-label="Colors">${palette.map((c) => `<button data-color="${c}" aria-label="Color ${c}" aria-pressed="${c === color}"><span class="swatch" style="--swatch:${c}"></span></button>`).join("")}<input class="custom-color" type="color" value="${color}" title="Custom color" aria-label="Custom color"></div><div class="popover width-popover hidden" role="group" aria-label="Stroke sizes">${[2, 3, 5, 8].map((w) => `<button data-width="${w}" aria-label="${w} pixel stroke" aria-pressed="${w === width}"><span class="width-dot" style="--width:${w}px"></span></button>`).join("")}</div><div class="divider"></div><button class="tool" data-action="undo" title="Undo (Cmd/Ctrl+Z)" aria-label="Undo last annotation">${svgIcon("undo")}</button><button class="tool" data-action="redo" title="Redo (Cmd/Ctrl+Shift+Z)" aria-label="Redo annotation">${svgIcon("redo")}</button><button class="tool" data-action="export" title="Export annotations as JSON" aria-label="Export annotations as JSON">${svgIcon("export")}</button><button class="tool" data-action="hide" title="Collapse toolbar" aria-label="Collapse toolbar">${svgIcon("close")}</button></div><button class="launcher hidden" title="Annotate" aria-label="Open annotation tools">${svgIcon("pen")}</button><span class="status" role="status"></span>`;
     document.documentElement.append(host);
-    const $ = (s) => shadow.querySelector(s),
+    let dockShadow;
+    if (toolbarMount) {
+      const dock = document.createElement("div");
+      dock.dataset.lastingInk = "true";
+      dock.style.cssText = "display:flex;justify-content:center;min-width:0";
+      dockShadow = dock.attachShadow({ mode: "open" });
+      dockShadow.append(shadow.querySelector("style").cloneNode(true));
+      const style = document.createElement("style");
+      style.textContent = `
+        .toolbar{position:relative;inset:auto;transform:none;max-width:none;min-height:32px;padding:0;gap:4px;border-radius:8px;background:transparent;box-shadow:none;flex-wrap:nowrap}
+        .tools{gap:4px}.tool{width:32px;min-width:32px;height:32px;padding:8px;border-radius:6px}.tool svg{width:16px;height:16px}
+        .divider{height:16px;margin:0 4px}.color-dot{width:16px;height:16px}
+        .popover{top:calc(100% + 12px);bottom:auto;right:0;padding:8px;border-radius:10px;gap:4px;max-width:calc(100vw - 24px);flex-wrap:wrap}
+        .more-popover{right:auto;left:0;min-width:164px;flex-direction:column;gap:4px}
+        .more-popover .tool{width:100%;justify-content:start;display:flex;gap:8px;height:32px;padding:8px;border-radius:6px}
+        .more-popover .tool:hover,.more-popover .tool[aria-pressed=true]{border-radius:6px;background:#f1f1f1}
+        .more-popover .tool span{font-size:12px;white-space:nowrap}
+        .more-button{font-size:20px;line-height:1}
+        .launcher{position:static;width:32px;height:32px;padding:8px;border-radius:6px;background:transparent;box-shadow:none}
+        @media(max-width:600px){.toolbar,.tools{gap:2px}.tool{width:28px;min-width:28px}.divider{margin:0 2px}}
+        @media(max-width:340px){.tool{width:24px;min-width:24px;padding:4px}}
+      `;
+      dockShadow.append(
+        style,
+        shadow.querySelector(".toolbar"),
+        shadow.querySelector(".launcher"),
+      );
+      toolbarMount.append(dock);
+      dockShadow.querySelector('[data-action="hide"]').remove();
+      const more = document.createElement("button");
+      more.className = "tool more-button";
+      more.dataset.action = "more";
+      more.title = "More drawing tools";
+      more.setAttribute("aria-label", "More drawing tools");
+      more.setAttribute("aria-expanded", "false");
+      more.textContent = "⋯";
+      const menu = document.createElement("div");
+      menu.className = "popover more-popover hidden";
+      menu.setAttribute("role", "group");
+      menu.setAttribute("aria-label", "More drawing tools");
+      for (const [mode, label] of [
+        ["marker", "Highlighter"],
+        ["box", "Rectangle"],
+        ["arrow", "Arrow"],
+      ]) {
+        const button = dockShadow.querySelector(`[data-mode="${mode}"]`);
+        const text = document.createElement("span");
+        text.textContent = label;
+        button.append(text);
+        menu.append(button);
+      }
+      dockShadow.querySelector(".tools").append(more);
+      dockShadow.querySelector(".toolbar").append(menu);
+    }
+    const roots = dockShadow ? [shadow, dockShadow] : [shadow];
+    const all = (s) => roots.flatMap((root) => [...root.querySelectorAll(s)]);
+    const $ = (s) => roots.map((root) => root.querySelector(s)).find(Boolean),
       overlay = $(".overlay"),
       capture = $(".capture"),
       notes = $(".notes");
     if (pdf) $('[data-action="export"]').remove();
-    if (topInset) {
-      capture.style.top = topInset + "px";
+    function clipToViewport() {
+      if (!viewportElement) return;
+      const r = viewportElement.getBoundingClientRect();
+      capture.style.inset = `${r.top}px ${innerWidth - r.right}px ${innerHeight - r.bottom}px ${r.left}px`;
       overlay.style.clipPath =
-        notes.style.clipPath = `inset(${topInset}px 0 0 0)`;
+        notes.style.clipPath = `inset(${r.top}px ${innerWidth - r.right}px ${innerHeight - r.bottom}px ${r.left}px)`;
+    }
+    function updateTopInset() {
+      const inset = toolbarMount
+        ? toolbarMount.closest("header").getBoundingClientRect().bottom
+        : pdf
+          ? topInset +
+            (hidden ? 44 : $(".toolbar").getBoundingClientRect().height)
+          : topInset;
+      capture.style.top = inset + "px";
+      overlay.style.clipPath = notes.style.clipPath = `inset(${inset}px 0 0 0)`;
+      host.style.setProperty("--ink-top-inset", inset + "px");
+      onTopInsetChange(inset);
+      clipToViewport();
+      request();
+    }
+    if (pdf || topInset) {
+      updateTopInset();
+      if (pdf)
+        new ResizeObserver(updateTopInset).observe(
+          toolbarMount ? toolbarMount.closest("header") : $(".toolbar"),
+        );
     }
     let hintTimer;
     function hint(text, sticky = false) {
@@ -535,7 +627,7 @@
       status();
       request();
     }
-    async function persist(id, item) {
+    async function writeItem(id, item) {
       savedCount++;
       status();
       const key = prefix + id;
@@ -552,6 +644,12 @@
         status();
       }
     }
+    function persist(id, item) {
+      const promise = writeItem(id, item);
+      pendingSaves.add(promise);
+      promise.finally(() => pendingSaves.delete(promise));
+      return promise;
+    }
     function change(id, value, record = true) {
       const prev = items.get(id);
       if (record) {
@@ -562,9 +660,15 @@
         });
         redo = [];
       }
-      if (value) items.set(id, value);
-      else items.delete(id);
+      if (value) {
+        value.updated = Date.now();
+        items.set(id, value);
+      } else {
+        items.delete(id);
+        if (selectedId === id) selectedId = null;
+      }
       persist(id, value);
+      onChange([...items.values()]);
       status();
       request();
     }
@@ -574,6 +678,7 @@
         id: crypto.randomUUID(),
         created: Date.now(),
         url: currentUrl,
+        ...(storageKey ? { documentId: storageKey } : {}),
       };
       change(item.id, item);
       return item;
@@ -586,28 +691,40 @@
           ? " on"
           : "") +
         (mode === "erase" ? " erase" : "");
-      shadow
-        .querySelectorAll("[data-mode]")
-        .forEach((b) =>
-          b.setAttribute("aria-pressed", b.dataset.mode === mode),
-        );
+      all("[data-mode]").forEach((b) =>
+        b.setAttribute("aria-pressed", b.dataset.mode === mode),
+      );
       color = ["highlight", "marker"].includes(mode)
         ? highlightColor
         : inkColor;
       syncControls();
       closePopovers();
+      request();
     }
     function toggle() {
+      if (toolbarMount) {
+        setMode("select");
+        return;
+      }
       hidden = !hidden;
       $(".toolbar").classList.toggle("hidden", hidden);
       $(".launcher").classList.toggle("hidden", !hidden);
       if (hidden) setMode("select");
+      if (pdf) updateTopInset();
     }
     function surface(id) {
       return surfaces().find((s) => s.id === id);
     }
     function mapFor(s) {
-      if (!maps.has(s.id)) maps.set(s.id, textMap(s.element));
+      if (!maps.has(s.id))
+        maps.set(
+          s.id,
+          textMap(
+            pdf
+              ? s.element.querySelector(".textLayer") || s.element
+              : s.element,
+          ),
+        );
       return maps.get(s.id);
     }
     function anchorAt(x, y, s) {
@@ -694,10 +811,14 @@
       };
     }
     function point(x, y, a) {
+      if (a.kind === "page" && surface(a.surface)?.toNormalized)
+        return surface(a.surface).toNormalized(x, y);
       const b = base(a);
       return [(x - b.x) / b.w, (y - b.y) / b.h];
     }
     function xy(p, a) {
+      if (a.kind === "page" && surface(a.surface)?.toScreen)
+        return surface(a.surface).toScreen(p);
       const b = base(a);
       return b ? [b.x + p[0] * b.w, b.y + p[1] * b.h] : null;
     }
@@ -713,9 +834,12 @@
       const pts = a.points.map((p) => xy(p, a.anchor));
       if (!pts[0]) return "";
       if (a.type === "box") {
-        const [x, y] = pts[0],
-          [xx, yy] = pts.at(-1);
-        return `M${x},${y}H${xx}V${yy}H${x}Z`;
+        const [p, q] = [a.points[0], a.points.at(-1)];
+        return (
+          [p, [q[0], p[1]], q, [p[0], q[1]]]
+            .map((v, i) => (i ? "L" : "M") + xy(v, a.anchor).join(","))
+            .join(" ") + "Z"
+        );
       }
       let d = pts.map((p, i) => (i ? "L" : "M") + p.join(",")).join(" ");
       if (a.type === "arrow" && pts.length > 1) {
@@ -736,20 +860,47 @@
         const s = surface(a.surface);
         if (!s) return;
         const range = locate(mapFor(s), a);
-        if (!range) return;
-        for (const r of range.getClientRects())
-          if (r.width > 0.5 && r.height > 0.5)
+        if (pdf && range && !a.quads) {
+          a.quads = [...range.getClientRects()]
+            .filter((r) => r.width > 0.5 && r.height > 0.5)
+            .map((r) =>
+              [
+                [r.left, r.top],
+                [r.right, r.top],
+                [r.right, r.bottom],
+                [r.left, r.bottom],
+              ].map((p) => point(p[0], p[1], { kind: "page", surface: s.id })),
+            );
+          persist(a.id, a);
+        }
+        if (pdf && a.quads)
+          for (const quad of a.quads) {
             overlay.append(
-              el("rect", {
-                x: r.x,
-                y: r.y,
-                width: r.width,
-                height: r.height,
+              el("polygon", {
+                points: quad
+                  .map((p) => xy(p, { kind: "page", surface: s.id })?.join(","))
+                  .join(" "),
                 fill: a.color,
                 opacity: ".35",
                 "data-id": a.id,
               }),
             );
+          }
+        else if (range)
+          for (const r of range.getClientRects()) {
+            if (r.width > 0.5 && r.height > 0.5)
+              overlay.append(
+                el("rect", {
+                  x: r.x,
+                  y: r.y,
+                  width: r.width,
+                  height: r.height,
+                  fill: a.color,
+                  opacity: ".35",
+                  "data-id": a.id,
+                }),
+              );
+          }
         return;
       }
       overlay.append(
@@ -757,7 +908,10 @@
           d: pathFor(a),
           fill: "none",
           stroke: a.color,
-          "stroke-width": a.type === "marker" ? a.width * 5 : a.width,
+          "stroke-width":
+            (a.pdfWidth
+              ? a.pdfWidth * (surface(a.anchor?.surface)?.scale?.() || 1)
+              : a.width) * (a.type === "marker" ? 5 : 1),
           "stroke-linecap": "round",
           "stroke-linejoin": "round",
           opacity: a.type === "marker" ? ".3" : "1",
@@ -835,6 +989,44 @@
       }
       overlay.replaceChildren();
       for (const a of items.values()) drawItem(a);
+      if (pdf && mode === "select") {
+        overlay.querySelectorAll("[data-id]").forEach((node) => {
+          node.style.pointerEvents = "visiblePainted";
+          node.style.cursor = "move";
+        });
+        const a = items.get(selectedId);
+        if (a?.points?.length) {
+          const pts = a.points.map((p) => xy(p, a.anchor)).filter(Boolean);
+          const left = Math.min(...pts.map((p) => p[0])),
+            right = Math.max(...pts.map((p) => p[0]));
+          const top = Math.min(...pts.map((p) => p[1])),
+            bottom = Math.max(...pts.map((p) => p[1]));
+          overlay.append(
+            el("rect", {
+              x: left - 5,
+              y: top - 5,
+              width: right - left + 10,
+              height: bottom - top + 10,
+              fill: "none",
+              stroke: "#777",
+              "stroke-dasharray": "4 3",
+              "pointer-events": "none",
+            }),
+          );
+          const handle = el("rect", {
+            x: right - 4,
+            y: bottom - 4,
+            width: 8,
+            height: 8,
+            fill: "white",
+            stroke: "#555",
+            "data-resize": a.id,
+          });
+          handle.style.pointerEvents = "all";
+          handle.style.cursor = "nwse-resize";
+          overlay.append(handle);
+        }
+      }
       if (active) drawItem(active);
       notes.querySelectorAll(".note").forEach((n) => {
         if (!items.has(n.dataset.id)) n.remove();
@@ -843,6 +1035,55 @@
     function request() {
       if (!frame) frame = requestAnimationFrame(render);
     }
+    overlay.addEventListener("pointerdown", (e) => {
+      if (mode !== "select" || e.button !== 0) return;
+      const id = e.target.dataset.resize || e.target.dataset.id;
+      const original = items.get(id);
+      if (!original) return;
+      e.preventDefault();
+      e.stopPropagation();
+      selectedId = id;
+      onChange([...items.values()]);
+      request();
+      if (!original.points?.length) return;
+      const before = structuredClone(original);
+      const start = point(e.clientX, e.clientY, before.anchor);
+      const resize = !!e.target.dataset.resize;
+      const min = [
+        Math.min(...before.points.map((p) => p[0])),
+        Math.min(...before.points.map((p) => p[1])),
+      ];
+      const max = [
+        Math.max(...before.points.map((p) => p[0])),
+        Math.max(...before.points.map((p) => p[1])),
+      ];
+      const move = (ev) => {
+        const now = point(ev.clientX, ev.clientY, before.anchor);
+        const points = before.points.map((p) =>
+          resize
+            ? [
+                min[0] +
+                  ((p[0] - min[0]) * (now[0] - min[0])) /
+                    (max[0] - min[0] || 1),
+                min[1] +
+                  ((p[1] - min[1]) * (now[1] - min[1])) /
+                    (max[1] - min[1] || 1),
+              ]
+            : [p[0] + now[0] - start[0], p[1] + now[1] - start[1]],
+        );
+        items.set(id, { ...before, points });
+        request();
+      };
+      const up = () => {
+        document.removeEventListener("pointermove", move, true);
+        document.removeEventListener("pointerup", up, true);
+        const updated = items.get(id);
+        items.set(id, before);
+        change(id, updated);
+      };
+      document.addEventListener("pointermove", move, true);
+      document.addEventListener("pointerup", up, true);
+    });
     capture.addEventListener("pointerdown", (e) => {
       if (e.button !== 0) return;
       e.preventDefault();
@@ -890,6 +1131,7 @@
         points: [p, p],
         color,
         width,
+        ...(pdf ? { pdfWidth: width / (s.scale?.() || 4 / 3) } : {}),
       };
       capture.setPointerCapture(e.pointerId);
       request();
@@ -919,144 +1161,137 @@
       request();
     });
     document.addEventListener("pointerup", (e) => {
-      if (mode !== "highlight" || e.composedPath().includes(host)) return;
+      if (
+        mode !== "highlight" ||
+        e.composedPath().includes(host) ||
+        e.composedPath().includes(toolbarMount)
+      )
+        return;
       setTimeout(() => {
         const selection = getSelection();
         if (!selection || selection.isCollapsed || !selection.rangeCount)
           return;
-        const r = selection.getRangeAt(0),
-          s = surfaces().find(
-            (s) =>
-              s.element.contains(r.startContainer) &&
-              s.element.contains(r.endContainer),
-          );
-        if (!s) {
-          hint("Select text within one page at a time.");
-          return;
+        const r = selection.getRangeAt(0);
+        const targets = surfaces().filter((s) => r.intersectsNode(s.element));
+        for (const s of targets) {
+          const map = mapFor(s),
+            selected = map.nodes.filter((n) => r.intersectsNode(n.node));
+          const first = selected[0],
+            last = selected.at(-1);
+          if (!first || !last) continue;
+          const start =
+            first.start + (r.startContainer === first.node ? r.startOffset : 0);
+          const end =
+            last.start +
+            (r.endContainer === last.node ? r.endOffset : last.node.length);
+          const quote = map.text.slice(start, end);
+          if (!quote.trim()) continue;
+          add({
+            type: "highlight",
+            surface: s.id,
+            start,
+            quote,
+            prefix: map.text.slice(Math.max(0, start - 40), start),
+            suffix: map.text.slice(end, end + 40),
+            color,
+          });
         }
-        const map = mapFor(s),
-          selected = map.nodes.filter((n) => r.intersectsNode(n.node));
-        const startNode = selected[0],
-          endNode = selected.at(-1);
-        if (!startNode || !endNode) return;
-        const start =
-          startNode.start +
-          (r.startContainer === startNode.node ? r.startOffset : 0);
-        const end =
-          endNode.start +
-          (r.endContainer === endNode.node ? r.endOffset : endNode.node.length);
-        const quote = map.text.slice(start, end);
-        if (!quote.trim()) return;
-        add({
-          type: "highlight",
-          surface: s.id,
-          start,
-          quote,
-          prefix: map.text.slice(Math.max(0, start - 40), start),
-          suffix: map.text.slice(end, end + 40),
-          color,
-        });
         selection.removeAllRanges();
       }, 0);
     });
-    shadow.addEventListener("click", async (e) => {
-      const tool = e.target.closest("[data-mode]");
-      if (tool) {
-        setMode(tool.dataset.mode);
-        return;
-      }
-      const action = e.target.closest("[data-action]")?.dataset.action;
-      if (action === "color" || action === "width") {
-        const pop = $("." + action + "-popover"),
-          wasHidden = pop.classList.contains("hidden");
-        closePopovers();
-        pop.classList.toggle("hidden", !wasHidden);
-        $("." + action + "-button").setAttribute("aria-expanded", wasHidden);
-        return;
-      }
-      const swatch = e.target.closest("[data-color]");
-      if (swatch) {
-        setColor(swatch.dataset.color);
-        closePopovers();
-        return;
-      }
-      const size = e.target.closest("[data-width]");
-      if (size) {
-        width = Number(size.dataset.width);
-        syncControls();
-        closePopovers();
-        return;
-      }
-      if (action === "hide") toggle();
-      if (action === "undo") {
-        const op = undo.pop();
-        if (op) {
-          op.after = items.has(op.id)
-            ? structuredClone(items.get(op.id))
-            : null;
-          redo.push(op);
-          change(op.id, op.before, false);
-          status();
+    for (const root of roots)
+      root.addEventListener("click", async (e) => {
+        const tool = e.target.closest("[data-mode]");
+        if (tool) {
+          setMode(tool.dataset.mode);
+          return;
         }
-      }
-      if (action === "redo") {
-        const op = redo.pop();
-        if (op) {
-          undo.push(op);
-          change(op.id, op.after, false);
-          status();
+        const action = e.target.closest("[data-action]")?.dataset.action;
+        if (["color", "width", "more"].includes(action)) {
+          const pop = $("." + action + "-popover"),
+            wasHidden = pop.classList.contains("hidden");
+          closePopovers();
+          pop.classList.toggle("hidden", !wasHidden);
+          $("." + action + "-button").setAttribute("aria-expanded", wasHidden);
+          return;
         }
-      }
-      if (action === "export") {
-        const all = await chrome.storage.local.get(null),
-          annotations = Object.entries(all)
-            .filter(([k]) => k.startsWith("lasting-ink:v1:"))
-            .map(([, v]) => v);
-        const blob = new Blob(
-            [
-              JSON.stringify(
-                {
-                  app: "Lasting Ink",
-                  version: 1,
-                  exported: new Date().toISOString(),
-                  annotations,
-                },
-                null,
-                2,
-              ),
-            ],
-            { type: "application/json" },
-          ),
-          link = document.createElement("a"),
-          href = URL.createObjectURL(blob);
-        link.href = href;
-        link.download = "lasting-ink-backup.json";
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(href), 10000);
-        hint("Exported all saved annotations");
-      }
-    });
+        const swatch = e.target.closest("[data-color]");
+        if (swatch) {
+          setColor(swatch.dataset.color);
+          closePopovers();
+          return;
+        }
+        const size = e.target.closest("[data-width]");
+        if (size) {
+          width = Number(size.dataset.width);
+          syncControls();
+          closePopovers();
+          return;
+        }
+        if (action === "hide") toggle();
+        if (action === "undo") {
+          const op = undo.pop();
+          if (op) {
+            op.after = items.has(op.id)
+              ? structuredClone(items.get(op.id))
+              : null;
+            redo.push(op);
+            change(op.id, op.before, false);
+            status();
+          }
+        }
+        if (action === "redo") {
+          const op = redo.pop();
+          if (op) {
+            undo.push(op);
+            change(op.id, op.after, false);
+            status();
+          }
+        }
+        if (action === "export") {
+          const all = await chrome.storage.local.get(null),
+            annotations = Object.entries(all)
+              .filter(([k]) => k.startsWith("lasting-ink:v1:"))
+              .map(([, v]) => v);
+          const blob = new Blob(
+              [
+                JSON.stringify(
+                  {
+                    app: "Lasting Ink",
+                    version: 1,
+                    exported: new Date().toISOString(),
+                    annotations,
+                  },
+                  null,
+                  2,
+                ),
+              ],
+              { type: "application/json" },
+            ),
+            link = document.createElement("a"),
+            href = URL.createObjectURL(blob);
+          link.href = href;
+          link.download = "lasting-ink-backup.json";
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(href), 10000);
+          hint("Exported all saved annotations");
+        }
+      });
     function closePopovers() {
-      shadow
-        .querySelectorAll(".popover")
-        .forEach((p) => p.classList.add("hidden"));
-      shadow
-        .querySelectorAll("[aria-expanded]")
-        .forEach((b) => b.setAttribute("aria-expanded", "false"));
+      all(".popover").forEach((p) => p.classList.add("hidden"));
+      all("[aria-expanded]").forEach((b) =>
+        b.setAttribute("aria-expanded", "false"),
+      );
     }
     function syncControls() {
       $(".color-dot").style.setProperty("--ink", color);
       $(".width-button .width-dot").style.setProperty("--width", width + "px");
-      shadow
-        .querySelectorAll("[data-color]")
-        .forEach((b) =>
-          b.setAttribute("aria-pressed", b.dataset.color === color),
-        );
-      shadow
-        .querySelectorAll("[data-width]")
-        .forEach((b) =>
-          b.setAttribute("aria-pressed", Number(b.dataset.width) === width),
-        );
+      all("[data-color]").forEach((b) =>
+        b.setAttribute("aria-pressed", b.dataset.color === color),
+      );
+      all("[data-width]").forEach((b) =>
+        b.setAttribute("aria-pressed", Number(b.dataset.width) === width),
+      );
       $(".custom-color").value = color;
     }
     function setColor(value) {
@@ -1069,7 +1304,11 @@
     $(".custom-color").oninput = (e) => setColor(e.target.value);
     syncControls();
     document.addEventListener("pointerdown", (e) => {
-      if (!e.composedPath().includes(host)) closePopovers();
+      if (
+        !e.composedPath().includes(host) &&
+        !e.composedPath().includes(toolbarMount)
+      )
+        closePopovers();
     });
     document.addEventListener(
       "keydown",
@@ -1087,6 +1326,55 @@
         )
           return;
         if (e.defaultPrevented || e.isComposing) return;
+        if (
+          pdf &&
+          selectedId &&
+          ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)
+        ) {
+          const item = items.get(selectedId);
+          if (item?.points?.length) {
+            e.preventDefault();
+            e.stopPropagation();
+            const step = e.shiftKey ? 10 : 1,
+              dx =
+                e.key === "ArrowLeft"
+                  ? -step
+                  : e.key === "ArrowRight"
+                    ? step
+                    : 0,
+              dy =
+                e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
+            const origin = xy(item.points[0], item.anchor),
+              a = point(origin[0], origin[1], item.anchor),
+              b = point(origin[0] + dx, origin[1] + dy, item.anchor);
+            const delta = [b[0] - a[0], b[1] - a[1]];
+            let points;
+            if (e.altKey) {
+              const min = [
+                  Math.min(...item.points.map((p) => p[0])),
+                  Math.min(...item.points.map((p) => p[1])),
+                ],
+                max = [
+                  Math.max(...item.points.map((p) => p[0])),
+                  Math.max(...item.points.map((p) => p[1])),
+                ];
+              points = item.points.map((p) => [
+                min[0] +
+                  ((p[0] - min[0]) * (max[0] - min[0] + delta[0])) /
+                    (max[0] - min[0] || 1),
+                min[1] +
+                  ((p[1] - min[1]) * (max[1] - min[1] + delta[1])) /
+                    (max[1] - min[1] || 1),
+              ]);
+            } else
+              points = item.points.map((p) => [
+                p[0] + delta[0],
+                p[1] + delta[1],
+              ]);
+            change(item.id, { ...item, points });
+            return;
+          }
+        }
         if (!e.altKey && (e.metaKey || e.ctrlKey) && !hidden && !active) {
           const key = e.key.toLowerCase();
           const action =
@@ -1155,6 +1443,7 @@
         }
       status();
       request();
+      onChange([...items.values()]);
     });
     chrome.runtime.onMessage.addListener((message) => {
       if (message.type === "toggle-ink") toggle();
@@ -1173,13 +1462,46 @@
         }
       }, 1000);
     await load();
+    onChange([...items.values()]);
     if (!pdf && items.size === 0) {
       hidden = true;
       $(".toolbar").classList.add("hidden");
       $(".launcher").classList.remove("hidden");
     }
     return {
+      list() {
+        return [...items.values()].map((a) => structuredClone(a));
+      },
+      selected() {
+        return selectedId;
+      },
+      select(id) {
+        selectedId = items.has(id) ? id : null;
+        setMode("select");
+        request();
+        onChange([...items.values()]);
+      },
+      update(id, patch) {
+        if (items.has(id)) {
+          const original = items.get(id);
+          if (pdf && patch.width && original.anchor?.kind === "page")
+            patch = {
+              ...patch,
+              pdfWidth:
+                patch.width /
+                (surface(original.anchor.surface)?.scale?.() || 4 / 3),
+            };
+          change(id, { ...original, ...patch });
+        }
+      },
+      remove(id) {
+        if (items.has(id)) change(id, null);
+      },
+      async flush() {
+        await Promise.all([...pendingSaves]);
+      },
       refresh() {
+        clipToViewport();
         dirty = true;
         request();
       },
