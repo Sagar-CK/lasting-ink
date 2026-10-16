@@ -33,10 +33,23 @@ export function pageNumber(value, count) {
   return Number.isInteger(n) && n >= 1 && n <= count ? n : null;
 }
 
+export function wheelZoom(event, current, pageHeight = 800) {
+  if (
+    !(event.metaKey || event.ctrlKey) ||
+    event.defaultPrevented ||
+    !Number.isFinite(event.deltaY) ||
+    event.deltaY === 0
+  )
+    return null;
+  const unit =
+    event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? pageHeight : 1;
+  return clampZoom(current * Math.exp(-event.deltaY * unit * 0.002));
+}
+
 // Preserve native scrolling inside the viewport and scrollable note textareas.
 // An overlay sibling otherwise traps wheel events outside the scroll container.
 export function routeWheel(event, viewport) {
-  if (event.ctrlKey || event.defaultPrevented) return;
+  if (event.metaKey || event.ctrlKey || event.defaultPrevented) return;
   const path = event.composedPath();
   if (path.includes(viewport)) return;
   const text = path.find((node) => node?.tagName === "TEXTAREA");

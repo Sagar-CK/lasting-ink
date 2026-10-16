@@ -5,6 +5,8 @@ import {
   parseZoom,
   nextZoom,
   pageNumber,
+  wheelZoom,
+  routeWheel,
 } from "../extension/viewer-controls.js";
 
 test("fit modes account for PDF points, viewport padding, and page orientation", () => {
@@ -33,6 +35,30 @@ test("page navigation only accepts whole pages in the document", () => {
   assert.equal(pageNumber("12", 12), 12);
   for (const n of ["", 0, 13, 1.5, "abc"])
     assert.equal(pageNumber(n, 12), null);
+});
+
+test("Cmd/Ctrl wheel zoom handles mouse and trackpad deltas without ordinary scrolling", () => {
+  for (const modifier of ["metaKey", "ctrlKey"]) {
+    const up = { [modifier]: true, deltaY: -100, deltaMode: 0 };
+    const down = { ...up, deltaY: 100 };
+    assert.ok(wheelZoom(up, 1) > 1);
+    assert.ok(wheelZoom(down, 1) < 1);
+    assert.equal(
+      wheelZoom({ ...up, deltaY: -3, deltaMode: 1 }, 1),
+      wheelZoom({ ...up, deltaY: -48 }, 1),
+    );
+    assert.equal(wheelZoom(up, 5), 5);
+    assert.equal(wheelZoom(down, 0.25), 0.25);
+    assert.equal(wheelZoom({ ...up, defaultPrevented: true }, 1), null);
+    assert.equal(wheelZoom({ ...up, deltaY: 0 }, 1), null);
+    const viewport = {
+      scrollBy() {
+        assert.fail("Zoom must not scroll the PDF");
+      },
+    };
+    routeWheel(up, viewport);
+  }
+  assert.equal(wheelZoom({ deltaY: -100 }, 1), null);
 });
 
 test("wheel scrolling reaches the PDF through the drawing overlay without double-scrolling", async () => {

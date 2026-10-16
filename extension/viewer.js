@@ -15,6 +15,7 @@ import {
   nextZoom,
   pageNumber,
   routeWheel,
+  wheelZoom,
 } from "./viewer-controls.js";
 import {
   cleanUrl,
@@ -1211,9 +1212,11 @@ $("#ocr").onclick = async () => {
 document.addEventListener(
   "wheel",
   (e) => {
-    if (e.ctrlKey) {
+    if (!ready) return;
+    const zoom = wheelZoom(e, viewer.currentScale, viewport.clientHeight);
+    if (zoom !== null) {
       e.preventDefault();
-      setZoom(viewer.currentScale * Math.exp(-e.deltaY * 0.002));
+      setZoom(zoom);
     } else if (
       !e
         .composedPath()
