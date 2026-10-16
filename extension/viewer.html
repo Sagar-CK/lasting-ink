@@ -1,17 +1,85 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Lasting Ink · PDF</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PDF</title>
     <link rel="stylesheet" href="vendor/pdf_viewer.css" />
     <link rel="stylesheet" href="viewer.css" />
   </head>
   <body>
-    <header>
-      <span id="title">Opening PDF…</span><span id="progress"></span>
+    <header aria-label="PDF controls">
+      <span id="title">Opening PDF…</span>
+      <div class="controls">
+        <div class="group" aria-label="Page navigation">
+          <button
+            id="previous"
+            title="Previous page"
+            aria-label="Previous page"
+            disabled
+            data-icon="previous"
+          ></button>
+          <input
+            id="page-number"
+            aria-label="Page number"
+            inputmode="numeric"
+            value="1"
+            disabled
+          />
+          <span id="page-count" aria-label="Total pages">/ —</span>
+          <button
+            id="next"
+            title="Next page"
+            aria-label="Next page"
+            disabled
+            data-icon="next"
+          ></button>
+        </div>
+        <span class="separator"></span>
+        <div class="group" aria-label="Zoom">
+          <button
+            id="zoom-out"
+            title="Zoom out"
+            aria-label="Zoom out"
+            disabled
+            data-icon="minus"
+          ></button>
+          <input
+            id="zoom"
+            aria-label="Zoom percentage"
+            inputmode="decimal"
+            value="100%"
+            disabled
+          />
+          <button
+            id="zoom-in"
+            title="Zoom in"
+            aria-label="Zoom in"
+            disabled
+            data-icon="plus"
+          ></button>
+        </div>
+        <select id="fit" aria-label="Page fit" disabled>
+          <option value="auto">Automatic</option>
+          <option value="width">Fit to width</option>
+          <option value="page">Fit to page</option>
+          <option value="actual">Actual size</option>
+          <option value="custom" hidden>Custom zoom</option>
+        </select>
+      </div>
+      <a
+        id="download"
+        class="button"
+        title="Download original PDF"
+        aria-label="Download original PDF"
+        aria-disabled="true"
+        data-icon="download"
+      ></a>
     </header>
-    <main id="pages"></main>
-    <div id="error" role="alert"></div>
+    <div id="viewport" tabindex="0" aria-label="PDF document">
+      <main id="pages"></main>
+      <div id="error" role="alert"></div>
+    </div>
     <script src="annotator.js"></script>
     <script type="module" src="viewer.js"></script>
   </body>

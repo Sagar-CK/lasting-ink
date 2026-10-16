@@ -91,16 +91,14 @@ async function page({
   const root = w.document.querySelector("[data-lasting-ink]").shadowRoot;
   const click = (s) => root.querySelector(s).click();
   const pointer = (type, x, y) =>
-    root
-      .querySelector(".capture")
-      .dispatchEvent(
-        new w.MouseEvent(type, {
-          bubbles: true,
-          clientX: x,
-          clientY: y,
-          button: 0,
-        }),
-      );
+    root.querySelector(".capture").dispatchEvent(
+      new w.MouseEvent(type, {
+        bubbles: true,
+        clientX: x,
+        clientY: y,
+        button: 0,
+      }),
+    );
   return {
     w,
     dom,

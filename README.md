@@ -4,7 +4,9 @@
 
 Annotate webpages and PDFs. Your marks return when you reopen the page.
 
-[Download extension](https://github.com/Sagar-CK/lasting-ink/releases/latest/download/lasting-ink-0.3.0.zip)
+[Download extension](https://github.com/Sagar-CK/lasting-ink/releases/latest/download/lasting-ink-0.4.0.zip)
+
+![PDF annotations with zoom and page controls](docs/example.png)
 
 ## Install
 
@@ -28,11 +30,13 @@ Requires Arc or Chrome with Chromium 151+.
 | <img src="docs/icons/arrow.svg" width="20" alt=""> | Arrow | A |
 | <img src="docs/icons/erase.svg" width="20" alt=""> | Erase | E |
 
+PDF controls are at the top: page navigation, zoom percentage, fit to width/page, and download. The download button saves the original PDF. Scroll normally with any annotation tool selected.
+
 Choose a color and stroke size from the round controls. Drag notes by their top edge. Press **Esc** to browse. Collapse the toolbar with **×**; reopen it with the pen button.
 
-Annotations save automatically in this browser profile. No account or cloud sync. Export downloads JSON, not an annotated PDF; import is not available. Removing the extension clears its data.
+Annotations save automatically in this browser profile. No account or cloud sync. On webpages, the export button downloads all annotations as JSON; import is not available. Removing the extension clears its data.
 
-Browser settings pages cannot be annotated. Password-protected PDFs use the native viewer. Major webpage layout changes can shift drawings. The PDF viewer currently has no search, print, or zoom controls.
+Browser settings pages cannot be annotated. Password-protected PDFs use the native viewer. Major webpage layout changes can shift drawings. PDF search, print, and export with embedded annotations are not available yet.
 
 ## Development
 
@@ -45,6 +49,6 @@ npm test
 npm run package
 ```
 
-Node.js 22.12+ and Python 3. The installable ZIP is written to `dist/`.
+Node.js 22.22.2+, 24.15+, or 26+ and Python 3. The installable ZIP is written to `dist/`.
 
 [Hugeicons](https://github.com/hugeicons/hugeicons-react) · [Geist](https://github.com/vercel/geist-font) · [PDF.js](https://github.com/mozilla/pdf.js). Bundled licenses are in [`extension/vendor/`](extension/vendor/).

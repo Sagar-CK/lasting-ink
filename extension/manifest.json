@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lasting Ink",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Annotate webpages and PDFs.",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": ["http://*/*", "https://*/*"],

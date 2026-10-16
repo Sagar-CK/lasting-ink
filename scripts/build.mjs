@@ -38,8 +38,8 @@ source = source.replace(
 );
 await fs.writeFile(sourcePath, await format(source, { parser: "babel" }));
 
-function svg(name) {
-  const shapes = bundled[name]
+function svg(name, source = bundled) {
+  const shapes = source[name]
     .map(([tag, attrs]) => {
       const attributes = Object.entries(attrs)
         .filter(([key]) => key !== "key")
@@ -58,6 +58,28 @@ await fs.mkdir(path.join(root, "docs/icons"), { recursive: true });
 for (const name of Object.keys(names)) {
   await fs.writeFile(path.join(root, "docs/icons", name + ".svg"), svg(name));
 }
+const viewerNames = {
+  previous: "ArrowUp01Icon",
+  next: "ArrowDown01Icon",
+  minus: "MinusSignIcon",
+  plus: "Add01Icon",
+  download: "Download04Icon",
+};
+const viewerIcons = Object.fromEntries(
+  Object.entries(viewerNames).map(([key, name]) => [
+    key,
+    svg(key, { [key]: icons[name] })
+      .replaceAll('color="#292929"', 'color="inherit"')
+      .replaceAll('stroke="#292929"', 'stroke="currentColor"'),
+  ]),
+);
+await fs.writeFile(
+  path.join(extension, "viewer-icons.js"),
+  await format(
+    "export const viewerIcons = " + JSON.stringify(viewerIcons) + ";",
+    { parser: "babel" },
+  ),
+);
 const brand = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect x="1" y="1" width="126" height="126" rx="32" fill="#fff" stroke="#e8e8e8"/><svg x="30" y="30" width="68" height="68" viewBox="0 0 24 24">${svg(
   "pen",
 )

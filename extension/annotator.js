@@ -424,7 +424,12 @@
     }
     return (node === document.body ? "body > " : "") + parts.join(" > ");
   }
-  globalThis.startLastingInk = async function ({ url, surfaces, pdf = false }) {
+  globalThis.startLastingInk = async function ({
+    url,
+    surfaces,
+    pdf = false,
+    topInset = 0,
+  }) {
     let currentUrl = canonical(url, pdf),
       prefix = "lasting-ink:v1:" + currentUrl + "|",
       items = new Map(),
@@ -489,12 +494,18 @@
       )
       .join(
         "",
-      )}</div><div class="divider"></div><button class="tool color-button" data-action="color" title="Color" aria-label="Ink color" aria-expanded="false"><span class="color-dot"></span></button><button class="tool width-button" data-action="width" title="Stroke size" aria-label="Stroke size" aria-expanded="false"><span class="width-dot"></span></button><div class="popover color-popover hidden" role="group" aria-label="Colors">${palette.map((c) => `<button data-color="${c}" aria-label="Color ${c}" aria-pressed="${c === color}"><span class="swatch" style="--swatch:${c}"></span></button>`).join("")}<input class="custom-color" type="color" value="${color}" title="Custom color" aria-label="Custom color"></div><div class="popover width-popover hidden" role="group" aria-label="Stroke sizes">${[2, 3, 5, 8].map((w) => `<button data-width="${w}" aria-label="${w} pixel stroke" aria-pressed="${w === width}"><span class="width-dot" style="--width:${w}px"></span></button>`).join("")}</div><div class="divider"></div><button class="tool" data-action="undo" title="Undo last annotation" aria-label="Undo last annotation">${svgIcon("undo")}</button><button class="tool" data-action="redo" title="Redo annotation" aria-label="Redo annotation">${svgIcon("redo")}</button><button class="tool" data-action="export" title="Export all annotations" aria-label="Export all annotations">${svgIcon("export")}</button><button class="tool" data-action="hide" title="Collapse toolbar" aria-label="Collapse toolbar">${svgIcon("close")}</button></div><button class="launcher hidden" title="Annotate" aria-label="Open annotation tools">${svgIcon("pen")}</button><span class="status" role="status"></span>`;
+      )}</div><div class="divider"></div><button class="tool color-button" data-action="color" title="Color" aria-label="Ink color" aria-expanded="false"><span class="color-dot"></span></button><button class="tool width-button" data-action="width" title="Stroke size" aria-label="Stroke size" aria-expanded="false"><span class="width-dot"></span></button><div class="popover color-popover hidden" role="group" aria-label="Colors">${palette.map((c) => `<button data-color="${c}" aria-label="Color ${c}" aria-pressed="${c === color}"><span class="swatch" style="--swatch:${c}"></span></button>`).join("")}<input class="custom-color" type="color" value="${color}" title="Custom color" aria-label="Custom color"></div><div class="popover width-popover hidden" role="group" aria-label="Stroke sizes">${[2, 3, 5, 8].map((w) => `<button data-width="${w}" aria-label="${w} pixel stroke" aria-pressed="${w === width}"><span class="width-dot" style="--width:${w}px"></span></button>`).join("")}</div><div class="divider"></div><button class="tool" data-action="undo" title="Undo last annotation" aria-label="Undo last annotation">${svgIcon("undo")}</button><button class="tool" data-action="redo" title="Redo annotation" aria-label="Redo annotation">${svgIcon("redo")}</button><button class="tool" data-action="export" title="Export annotations as JSON" aria-label="Export annotations as JSON">${svgIcon("export")}</button><button class="tool" data-action="hide" title="Collapse toolbar" aria-label="Collapse toolbar">${svgIcon("close")}</button></div><button class="launcher hidden" title="Annotate" aria-label="Open annotation tools">${svgIcon("pen")}</button><span class="status" role="status"></span>`;
     document.documentElement.append(host);
     const $ = (s) => shadow.querySelector(s),
       overlay = $(".overlay"),
       capture = $(".capture"),
       notes = $(".notes");
+    if (pdf) $('[data-action="export"]').remove();
+    if (topInset) {
+      capture.style.top = topInset + "px";
+      overlay.style.clipPath =
+        notes.style.clipPath = `inset(${topInset}px 0 0 0)`;
+    }
     let hintTimer;
     function hint(text, sticky = false) {
       $(".hint").textContent = text;
