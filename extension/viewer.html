@@ -119,24 +119,38 @@
       </div>
     </header>
     <div id="document-menu" class="menu" hidden>
-      <button id="save-annotated">Download with annotations</button>
-      <button id="save-original">Download original</button>
-      <button id="print">Print…</button>
-      <button id="rotate">Rotate clockwise</button>
-      <button id="bookmark-current">Bookmark this page</button>
-      <label><input id="two-page" type="checkbox" /> Two-page view</label>
-      <button id="present">Presentation mode</button>
-      <button id="ocr">Recognize scanned text…</button>
+      <span class="section-label">Document</span>
+      <button id="save-annotated" data-menu-icon="download">
+        Download with annotations
+      </button>
+      <button id="save-original" data-menu-icon="file">
+        Download original
+      </button>
+      <button id="print" data-menu-icon="print">Print…</button>
+      <button id="bookmark-current" data-menu-icon="bookmark">
+        Bookmark this page
+      </button>
       <hr />
-      <button id="open-local">Open a local PDF…</button>
-      <button id="backup">Export annotation backup</button>
-      <button id="restore">Import annotation backup…</button>
+      <span class="section-label">View</span>
+      <button id="rotate" data-menu-icon="rotate">Rotate clockwise</button>
+      <label><input id="two-page" type="checkbox" /> Two-page view</label>
+      <button id="present" data-menu-icon="present">Presentation mode</button>
+      <button id="ocr" data-menu-icon="ocr">Recognize scanned text…</button>
+      <hr />
+      <span class="section-label">Files &amp; backup</span>
+      <button id="open-local" data-menu-icon="folder">Open a local PDF…</button>
+      <button id="backup" data-menu-icon="download">
+        Export annotation backup
+      </button>
+      <button id="restore" data-menu-icon="upload">
+        Import annotation backup…
+      </button>
       <hr />
       <label
         ><input id="sync-enabled" type="checkbox" /> Sync through browser
         account</label
       >
-      <button id="sync-now">Sync now</button>
+      <button id="sync-now" data-menu-icon="sync">Sync now</button>
       <span id="sync-status" role="status"></span>
     </div>
     <aside id="sidebar" hidden aria-label="Document navigation">
@@ -173,7 +187,15 @@
           aria-label="Search annotations"
         />
         <div id="annotation-editor" hidden>
-          <label>Color <input id="annotation-color" type="color" /></label>
+          <label
+            >Color
+            <input
+              id="annotation-color"
+              type="text"
+              maxlength="7"
+              spellcheck="false"
+              aria-label="Annotation hex color"
+          /></label>
           <label
             >Width
             <input id="annotation-width" type="range" min="1" max="16" step="1"

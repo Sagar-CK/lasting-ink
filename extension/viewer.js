@@ -32,6 +32,13 @@ const asset = (p) => chrome.runtime.getURL(p);
 pdfjs.GlobalWorkerOptions.workerSrc = asset("vendor/pdf.worker.mjs");
 for (const button of document.querySelectorAll("[data-icon]"))
   button.innerHTML = viewerIcons[button.dataset.icon] || "";
+for (const button of document.querySelectorAll("[data-menu-icon]")) {
+  const icon = document.createElement("span");
+  icon.className = "menu-icon";
+  icon.setAttribute("aria-hidden", "true");
+  icon.innerHTML = viewerIcons[button.dataset.menuIcon] || "";
+  button.prepend(icon);
+}
 const viewport = $("#viewport"),
   bus = new EventBus(),
   downloads = new DownloadManager();
@@ -670,11 +677,13 @@ async function loadOutline() {
     const row = document.createElement("div"),
       button = document.createElement("button"),
       remove = document.createElement("button");
-    row.style.display = "flex";
+    row.className = "bookmark-row";
     button.className = "outline-item";
-    button.textContent = mark.title;
+    button.innerHTML = viewerIcons.bookmark;
+    button.append(document.createTextNode(mark.title));
     button.onclick = () => goTo(mark.page);
-    remove.textContent = "×";
+    remove.className = "remove-bookmark";
+    remove.innerHTML = viewerIcons.close;
     remove.title = "Remove bookmark";
     remove.setAttribute("aria-label", "Remove " + mark.title);
     remove.onclick = async () => {
@@ -732,7 +741,8 @@ async function loadAttachments() {
   for (const item of Object.values(attachments)) {
     const button = document.createElement("button");
     button.className = "attachment";
-    button.textContent = item.filename;
+    button.innerHTML = viewerIcons.attachment;
+    button.append(document.createTextNode(item.filename));
     button.onclick = () =>
       downloads.downloadData(
         item.content,
@@ -772,7 +782,15 @@ function updateNotes() {
     b.className = "note-card";
     b.setAttribute("aria-pressed", String(a.id === ink.selected()));
     const title = document.createElement("small");
-    title.textContent = `Page ${a.surface || a.anchor?.surface || "?"} · ${a.type}`;
+    const labels = {
+      pen: "Drawing",
+      marker: "Highlighter",
+      box: "Rectangle",
+      arrow: "Arrow",
+      highlight: "Highlight",
+      note: "Comment",
+    };
+    title.textContent = `Page ${a.surface || a.anchor?.surface || "?"} · ${labels[a.type] || a.type}`;
     const text = document.createElement("span");
     text.textContent =
       a.text ||
@@ -795,7 +813,8 @@ function updateNotes() {
 }
 $("#note-filter").oninput = updateNotes;
 $("#annotation-color").oninput = (e) => {
-  if (ink.selected()) ink.update(ink.selected(), { color: e.target.value });
+  if (ink.selected() && /^#[0-9a-f]{6}$/i.test(e.target.value))
+    ink.update(ink.selected(), { color: e.target.value });
 };
 $("#annotation-width").oninput = (e) => {
   if (ink.selected())

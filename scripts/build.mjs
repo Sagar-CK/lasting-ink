@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import * as icons from "@hugeicons/core-free-icons";
+import { paths, svgIcon } from "./icons.mjs";
 import sharp from "sharp";
 import { format } from "prettier";
 import { build } from "esbuild";
@@ -9,28 +9,7 @@ import { build } from "esbuild";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const extension = path.join(root, "extension");
 const modules = path.join(root, "node_modules");
-const names = {
-  select: "Cursor02Icon",
-  highlight: "TextSelectionIcon",
-  pen: "Pen01Icon",
-  marker: "HighlighterIcon",
-  note: "StickyNote03Icon",
-  box: "SquareIcon",
-  arrow: "ArrowUpRight01Icon",
-  erase: "EraserIcon",
-  undo: "Undo02Icon",
-  redo: "Redo02Icon",
-  export: "Download04Icon",
-  close: "Cancel01Icon",
-  minus: "MinusSignIcon",
-  grip: "DragDropVerticalIcon",
-};
-const bundled = Object.fromEntries(
-  Object.entries(names).map(([key, name]) => {
-    if (!icons[name]) throw new Error(`Missing icon: ${name}`);
-    return [key, icons[name]];
-  }),
-);
+const bundled = paths;
 const sourcePath = path.join(extension, "annotator.js");
 let source = await fs.readFile(sourcePath, "utf8");
 source = source.replace(
@@ -39,55 +18,20 @@ source = source.replace(
 );
 await fs.writeFile(sourcePath, await format(source, { parser: "babel" }));
 
-function svg(name, source = bundled) {
-  const shapes = source[name]
-    .map(([tag, attrs]) => {
-      const attributes = Object.entries(attrs)
-        .filter(([key]) => key !== "key")
-        .map(
-          ([key, value]) =>
-            `${key.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())}="${value}"`,
-        )
-        .join(" ");
-      return `<${tag} ${attributes}/>`;
-    })
-    .join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" color="#292929" stroke="#292929" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${shapes}</svg>`;
-}
+const svg = (name) => svgIcon(name, "#292929");
 await fs.mkdir(path.join(extension, "icons"), { recursive: true });
 await fs.mkdir(path.join(root, "docs/icons"), { recursive: true });
-for (const name of Object.keys(names)) {
+for (const name of Object.keys(paths)) {
   await fs.writeFile(path.join(root, "docs/icons", name + ".svg"), svg(name));
+  await fs.writeFile(path.join(extension, "icons", name + ".svg"), svg(name));
 }
-const viewerNames = {
-  sidebar: "SidebarLeft01Icon",
-  search: "Search01Icon",
-  menu: "MoreHorizontalIcon",
-  close: "Cancel01Icon",
-  previous: "ArrowUp01Icon",
-  next: "ArrowDown01Icon",
-  minus: "MinusSignIcon",
-  plus: "Add01Icon",
-  download: "Download04Icon",
-};
-const viewerIcons = Object.fromEntries(
-  Object.entries(viewerNames).map(([key, name]) => [
-    key,
-    svg(key, { [key]: icons[name] })
-      .replaceAll('color="#292929"', 'color="inherit"')
-      .replaceAll('stroke="#292929"', 'stroke="currentColor"'),
-  ]),
+await fs.writeFile(
+  path.join(extension, "icons/check-light.svg"),
+  svgIcon("check", "#fff"),
 );
-// A sheet inside a viewport for page-fit; horizontal expansion for width-fit.
-const fitPaths = {
-  fitPage:
-    '<path d="M4 8V4h4m8 0h4v4m0 8v4h-4M8 20H4v-4"/><rect x="8" y="6" width="8" height="12" rx="1"/>',
-  fitWidth:
-    '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M6 12h12m-9-3-3 3 3 3m6-6 3 3-3 3"/>',
-};
-for (const [name, paths] of Object.entries(fitPaths))
-  viewerIcons[name] =
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+const viewerIcons = Object.fromEntries(
+  Object.keys(paths).map((key) => [key, svgIcon(key)]),
+);
 await fs.writeFile(
   path.join(extension, "viewer-icons.js"),
   await format(
@@ -145,12 +89,32 @@ const copies = [
     "vendor/geist.woff2",
   ],
   ["@fontsource-variable/geist/LICENSE", "vendor/GEIST-LICENSE.txt"],
-  ["@hugeicons/core-free-icons/LICENSE.md", "vendor/HUGEICONS-LICENSE.txt"],
 ];
 for (const [from, to] of copies) {
   await fs.cp(path.join(modules, from), path.join(extension, to), {
     recursive: true,
   });
+}
+// PDF.js uses these filenames for document comments and embedded files.
+// Keep its interaction layer, with our own artwork and visual language.
+const annotationIcons = {
+  check: "check",
+  comment: "note",
+  help: "help",
+  insert: "plus",
+  key: "key",
+  newparagraph: "note",
+  noicon: "note",
+  note: "note",
+  paperclip: "attachment",
+  paragraph: "note",
+  pushpin: "pin",
+};
+for (const [name, icon] of Object.entries(annotationIcons)) {
+  await fs.writeFile(
+    path.join(extension, "vendor/images", `annotation-${name}.svg`),
+    svg(icon),
+  );
 }
 await build({
   stdin: { contents: 'export * from "pdf-lib";', resolveDir: root },

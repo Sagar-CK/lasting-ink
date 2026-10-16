@@ -11,334 +11,59 @@
     "#6f9fc5",
     "#9684b6",
   ];
-  // Hugeicons free stroke set (MIT), bundled locally.
+  // Generated from Lasting Ink's shared icon set in scripts/icons.mjs.
   const icons = {
-    select: [
-      [
-        "path",
-        {
-          d: "M9.80282 4.62973L15.8364 6.99069C19.3164 8.35243 21.0564 9.03329 20.9987 10.1133C20.941 11.1934 19.1251 11.6886 15.4933 12.6791C14.412 12.974 13.8713 13.1215 13.4964 13.4963C13.1215 13.8712 12.9741 14.4119 12.6791 15.4933C11.6887 19.125 11.1934 20.9409 10.1134 20.9986C9.03335 21.0563 8.35249 19.3163 6.99075 15.8363L4.62979 9.80276C3.20411 6.15934 2.49127 4.33764 3.41448 3.41442C4.3377 2.49121 6.15941 3.20405 9.80282 4.62973Z",
-          stroke: "currentColor",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-    ],
-    highlight: [
-      [
-        "path",
-        {
-          d: "M2.99792 3.02212C5.19555 2.97 6.26962 2.90514 6.99792 4.51533M6.99792 4.51533C7.55517 3.2634 8.38712 2.90727 10.9979 3.02212M6.99792 4.51533V18.9497M6.99792 18.9497C7.22891 20.6878 8.13357 21.1034 10.9979 20.9406M6.99792 18.9497C6.6944 20.7313 5.77226 21.1738 2.99792 20.9406M3.99792 11.9814H9.99792",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M20.9698 15.9631V20.4428M20.9698 15.9631C21.017 15.1437 21.0187 14.5196 20.92 14.0101C20.6874 12.8091 19.4287 12.0854 18.2108 11.9382C17.0451 11.7973 16.1094 12.0965 15.1629 13.4715M20.9698 15.9631L18.1305 15.9631C17.6943 15.9631 17.2543 15.9841 16.834 16.1006C14.2653 16.8125 14.4536 20.404 17.0299 20.8467C17.316 20.8959 17.6082 20.9169 17.8979 20.904C18.5745 20.8739 19.1988 20.5481 19.7345 20.135C20.3621 19.6511 20.9698 18.9757 20.9698 17.9541V15.9631Z",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "1",
-        },
-      ],
-    ],
-    pen: [
-      [
-        "path",
-        {
-          d: "M3.49977 18.9853V20.5H5.01449C6.24074 20.5 6.85387 20.5 7.40518 20.2716C7.9565 20.0433 8.39004 19.6097 9.25713 18.7426L19.1211 8.87868C20.0037 7.99612 20.4449 7.55483 20.4937 7.01325C20.5018 6.92372 20.5018 6.83364 20.4937 6.74411C20.4449 6.20253 20.0037 5.76124 19.1211 4.87868C18.2385 3.99612 17.7972 3.55483 17.2557 3.50605C17.1661 3.49798 17.0761 3.49798 16.9865 3.50605C16.4449 3.55483 16.0037 3.99612 15.1211 4.87868L5.25713 14.7426C4.39004 15.6097 3.9565 16.0433 3.72813 16.5946C3.49977 17.1459 3.49977 17.759 3.49977 18.9853Z",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M13.5 6.5L17.5 10.5",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "1",
-        },
-      ],
-    ],
-    marker: [
-      [
-        "path",
-        {
-          d: "M6.6777 16.2071L8.79289 18.3223M6.6777 16.2071L2.5 20.5H6.5L8.79289 18.3223M6.6777 16.2071C6.28717 15.8166 6.29534 15.1872 6.63537 14.752C7.42742 13.7383 7.71531 12.8216 7.79924 12.1382C7.89158 11.3863 8.07366 10.5734 8.60933 10.0377L9.50122 9.14828M8.79289 18.3223C9.18342 18.7128 9.81278 18.7047 10.248 18.3646C11.2617 17.5726 12.1784 17.2847 12.8618 17.2008C13.6137 17.1084 14.4266 16.9263 14.9623 16.3907L15.8517 15.4988M15.8517 15.4988L9.50122 9.14828M15.8517 15.4988C16.2422 15.8893 16.8754 15.8893 17.2659 15.4988L21.5 11.2647M9.50122 9.14828C9.1107 8.75776 9.1107 8.12459 9.50122 7.73407L13.7353 3.5",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-    ],
-    note: [
-      [
-        "path",
-        {
-          d: "M14 20.5V20C14 17.1716 14 15.7574 14.8787 14.8787C15.7574 14 17.1716 14 20 14H20.5",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M13 3H11C7.22876 3 5.34315 3 4.17157 4.17157C3 5.34315 3 7.22876 3 11V13C3 16.7712 3 18.6569 4.17157 19.8284C5.34315 21 7.22876 21 11 21H12.3431C13.1606 21 13.5694 21 13.9369 20.8478C14.3045 20.6955 14.5935 20.4065 15.1716 19.8284L19.8284 15.1716C20.4065 14.5935 20.6955 14.3045 20.8478 13.9369C21 13.5694 21 13.1606 21 12.3431V11C21 7.22876 21 5.34315 19.8284 4.17157C18.6569 3 16.7712 3 13 3Z",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "1",
-        },
-      ],
-    ],
-    box: [
-      [
-        "path",
-        {
-          d: "M2.5 12C2.5 7.52166 2.5 5.28249 3.89124 3.89124C5.28249 2.5 7.52166 2.5 12 2.5C16.4783 2.5 18.7175 2.5 20.1088 3.89124C21.5 5.28249 21.5 7.52166 21.5 12C21.5 16.4783 21.5 18.7175 20.1088 20.1088C18.7175 21.5 16.4783 21.5 12 21.5C7.52166 21.5 5.28249 21.5 3.89124 20.1088C2.5 18.7175 2.5 16.4783 2.5 12Z",
-          stroke: "currentColor",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-    ],
-    arrow: [
-      [
-        "path",
-        {
-          d: "M9 6.65032C9 6.65032 15.9383 6.10759 16.9154 7.08463C17.8924 8.06167 17.3496 15 17.3496 15M16.5 7.5L6.5 17.5",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-    ],
-    erase: [
-      [
-        "path",
-        {
-          d: "M8.73792 7.78021L4.84693 11.7574C3.67722 12.953 3.09236 13.5508 3.01263 14.2802C2.99579 14.4343 2.99579 14.5899 3.01263 14.744C3.09236 15.4733 3.67722 16.0711 4.84693 17.2668L4.99601 17.4191C5.62049 18.0575 5.93274 18.3766 6.30638 18.5911C6.5236 18.7157 6.75482 18.8134 6.99505 18.882C7.40827 19 7.85149 19 8.73792 19C9.62436 19 10.0676 19 10.4808 18.882C10.721 18.8134 10.9522 18.7157 11.1695 18.5911C11.5431 18.3766 11.8554 18.0575 12.4798 17.4191L15.3239 14.5121M8.73792 7.78021L12.3199 4.12313C13.7065 2.70754 14.3997 1.99974 15.2627 2C16.1256 2.00026 16.8185 2.70846 18.2042 4.12487L18.9473 4.8845C20.3159 6.28342 21.0002 6.98288 21 7.85008C20.9997 8.71728 20.315 9.41633 18.9456 10.8144L15.3239 14.5121M8.73792 7.78021L15.3239 14.5121",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M10 22L21 22",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "1",
-        },
-      ],
-    ],
-    undo: [
-      [
-        "path",
-        {
-          d: "M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C8.66873 3 5.76018 4.80989 4.20404 7.5",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M3 3V4.27816C3 6.47004 3 7.56599 3.70725 8.16512C4.4145 8.76425 5.49553 8.58408 7.6576 8.22373L9 8",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "1",
-        },
-      ],
-    ],
-    redo: [
-      [
-        "path",
-        {
-          d: "M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C15.3313 3 18.2398 4.80989 19.796 7.5",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M20.9991 3V4.27816C20.9991 6.47004 20.9991 7.56599 20.2918 8.16512C19.5846 8.76425 18.5036 8.58408 16.3415 8.22373L14.9991 8",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "1",
-        },
-      ],
-    ],
-    export: [
-      [
-        "path",
-        {
-          d: "M16.9504 12.1817C17.1981 12.814 16.5076 13.5726 15.1267 15.0899C13.6702 16.6902 12.9201 17.4904 12 17.5C11.0799 17.4904 10.3298 16.6902 8.87331 15.0899C7.49239 13.5726 6.80193 12.814 7.04964 12.1817C7.05868 12.1586 7.06851 12.1359 7.0791 12.1135C7.34928 11.542 8.24477 11.5029 10 11.5002V4.99998C10 4.53501 10 4.30253 10.0511 4.11179C10.1898 3.59414 10.5941 3.1898 11.1118 3.05111C11.3025 3 11.535 3 12 3C12.4649 3 12.6974 3 12.8882 3.05111C13.4058 3.1898 13.8102 3.59414 13.9489 4.11179C14 4.30253 14 4.53501 14 4.99998V11.5002C15.7552 11.5029 16.6507 11.542 16.9209 12.1135C16.9315 12.1359 16.9413 12.1586 16.9504 12.1817Z",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M5.00006 21H19.0001",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "1",
-        },
-      ],
-    ],
-    close: [
-      [
-        "path",
-        {
-          d: "M18 6L6.00081 17.9992M17.9992 18L6 6.00085",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-    ],
-    minus: [
-      [
-        "path",
-        {
-          d: "M20 12L4 12",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-    ],
-    grip: [
-      [
-        "path",
-        {
-          d: "M16 6C16 6.55228 15.5523 7 15 7C14.4477 7 14 6.55228 14 6C14 5.44772 14.4477 5 15 5C15.5523 5 16 5.44772 16 6Z",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "0",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M10 6C10 6.55228 9.55228 7 9 7C8.44772 7 8 6.55228 8 6C8 5.44772 8.44772 5 9 5C9.55228 5 10 5.44772 10 6Z",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "1",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M16 18C16 18.5523 15.5523 19 15 19C14.4477 19 14 18.5523 14 18C14 17.4477 14.4477 17 15 17C15.5523 17 16 17.4477 16 18Z",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "2",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M16 12C16 12.5523 15.5523 13 15 13C14.4477 13 14 12.5523 14 12C14 11.4477 14.4477 11 15 11C15.5523 11 16 11.4477 16 12Z",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "3",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M10 18C10 18.5523 9.55228 19 9 19C8.44772 19 8 18.5523 8 18C8 17.4477 8.44772 17 9 17C9.55228 17 10 17.4477 10 18Z",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "4",
-        },
-      ],
-      [
-        "path",
-        {
-          d: "M10 12C10 12.5523 9.55228 13 9 13C8.44772 13 8 12.5523 8 12C8 11.4477 8.44772 11 9 11C9.55228 11 10 11.4477 10 12Z",
-          stroke: "currentColor",
-          strokeLinecap: "round",
-          strokeLinejoin: "round",
-          strokeWidth: "1.5",
-          key: "5",
-        },
-      ],
-    ],
+    select: '<path d="m5 3 14 9-7 1-3 7Z"/>',
+    highlight:
+      '<path d="M5 4h10M10 4v13M7 17h6M4 21h16"/><path d="m17 7 3 3-3 3"/>',
+    pen: '<path d="m4 16 12-12 4 4L8 20H4Z"/><path d="m13 7 4 4M4 16l4 4"/>',
+    marker: '<path d="m6 13 8-9 6 5-8 9-6-5Zm2 2-4 5h6l2-2M3 22h12"/>',
+    note: '<path d="M20 14a3 3 0 0 1-3 3H9l-5 4V6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3Z"/>',
+    box: '<rect x="4" y="4" width="16" height="16" rx="2"/>',
+    arrow: '<path d="M5 19 19 5M7 5h12v12"/>',
+    erase:
+      '<path d="m4 13 9-9a2 2 0 0 1 3 0l4 4a2 2 0 0 1 0 3l-8 8H8l-4-4a1.5 1.5 0 0 1 0-2ZM9 8l8 8M11 21h10"/>',
+    undo: '<path d="m8 4-5 5 5 5M3 9h11a6 6 0 0 1 0 12"/>',
+    redo: '<path d="m16 4 5 5-5 5m5-5H10a6 6 0 0 0 0 12"/>',
+    download: '<path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4"/>',
+    close: '<path d="m6 6 12 12M6 18 18 6"/>',
+    minus: '<path d="M5 12h14"/>',
+    plus: '<path d="M5 12h14M12 5v14"/>',
+    grip: '<path d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01" stroke-width="3"/>',
+    sidebar:
+      '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M5.5 8h1M5.5 12h1"/>',
+    search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
+    menu: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+    previous: '<path d="m6 15 6-6 6 6"/>',
+    next: '<path d="m6 9 6 6 6-6"/>',
+    fitPage:
+      '<path d="M3 8V3h5m8 0h5v5m0 8v5h-5M8 21H3v-5"/><rect x="8" y="6" width="8" height="12" rx="1"/>',
+    fitWidth:
+      '<rect x="6" y="3" width="12" height="18" rx="1"/><path d="M2 12h20m-3-3 3 3-3 3M5 9l-3 3 3 3"/>',
+    check: '<path d="m5 12 4 4L19 6"/>',
+    print:
+      '<path d="M7 8V3h10v5M7 17H4V9h16v8h-3M7 14h10v7H7Z"/><path d="M17 11h.01"/>',
+    rotate: '<path d="M4 9a8 8 0 1 1 1 9M4 4v5h5"/>',
+    bookmark: '<path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16l-6-4Z"/>',
+    spread:
+      '<path d="M12 5v16M3 3h6a3 3 0 0 1 3 3 3 3 0 0 1 3-3h6v16h-6a3 3 0 0 0-3 2 3 3 0 0 0-3-2H3Z"/>',
+    present: '<path d="M3 3h18v13H3ZM12 16v5m-4 0 4-5 4 5"/>',
+    ocr: '<path d="M7 3H3v4m14-4h4v4M3 17v4h4m10 0h4v-4M8 8h8m-4 0v8m-2 0h4"/>',
+    folder: '<path d="M3 7V5h7l2 2h9v13H3Z"/>',
+    upload: '<path d="M12 16V4m-4 4 4-4 4 4M4 17v4h16v-4"/>',
+    sync: '<path d="M20 7a9 9 0 0 0-15-1L3 9m0-5v5h5M4 17a9 9 0 0 0 15 1l2-3m0 5v-5h-5"/>',
+    file: '<path d="M14 3H5v18h14V8ZM14 3v5h5M8 12h8m-8 4h6"/>',
+    attachment:
+      '<path d="m8 12 7-7a4 4 0 0 1 6 6L10 22a6 6 0 0 1-8-8L13 3m-8 14a2 2 0 0 0 3 0l9-9"/>',
+    key: '<circle cx="8" cy="8" r="5"/><path d="m12 12 9 9m-4-4 3-3m-6 0 3-3"/>',
+    help: '<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 1 1 5 2c-2 1-2 2-2 3m0 3h.01"/>',
+    pin: '<path d="m9 3 12 12M14 4l6 6-5 3-2 5-7-7 5-2ZM7 17l-4 4"/>',
+    export: '<path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4"/>',
   };
   function svgIcon(name) {
-    const attrs = (a) =>
-      Object.entries(a)
-        .filter(([k]) => k !== "key")
-        .map(
-          ([k, v]) =>
-            k.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase()) + '="' + v + '"',
-        )
-        .join(" ");
     return (
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      icons[name]
-        .map(([tag, a]) => "<" + tag + " " + attrs(a) + "></" + tag + ">")
-        .join("") +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      icons[name] +
       "</svg>"
     );
   }
@@ -473,23 +198,23 @@
       "position:fixed!important;inset:0!important;z-index:2147483646!important;pointer-events:none!important;display:block!important;contain:layout style!important;";
     const shadow = host.attachShadow({ mode: "open" });
     shadow.innerHTML = `<style>
-    :host{all:initial;color:#282828;font-family:"Lasting Ink Geist",Geist,Arial,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}
-    *{box-sizing:border-box}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #737373;outline-offset:2px}
+    :host{all:initial;color:#292929;font-family:"Lasting Ink Geist",Geist,Arial,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}
+    *{box-sizing:border-box}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #777;outline-offset:2px}
     .overlay{position:fixed;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
     .capture{position:fixed;inset:0;pointer-events:none;touch-action:none}.capture.on{pointer-events:auto;cursor:crosshair}.capture.erase{cursor:cell}
-    .toolbar{pointer-events:auto;position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:6px;border-radius:28px;background:#fff;box-shadow:0 0 0 1px #0000000a,0 2px 6px #00000008,0 8px 28px #00000012;max-width:calc(100vw - 24px)}
-    .tools{display:flex;gap:2px}.tool{background:transparent;border:0;color:#777;border-radius:50%;min-width:40px;width:40px;height:40px;display:grid;place-items:center;padding:10px;transition:background .12s,color .12s,transform .12s}.tool svg{width:20px;height:20px}.tool:hover{background:#f4f4f4;color:#242424}.tool:active{transform:scale(.96)}.tool[aria-pressed=true]{background:#ededed;color:#111}.tool:disabled{opacity:.26;cursor:default}.tool:disabled:hover{background:transparent}
-    .divider{width:1px;height:19px;background:#ededed;margin:0 4px}.color-dot{width:19px;height:19px;background:var(--ink,#292929);border-radius:50%;box-shadow:inset 0 0 0 1px #00000012}.width-dot{display:block;width:var(--width,3px);height:var(--width,3px);background:currentColor;border-radius:50%}
-    .popover{pointer-events:auto;position:absolute;bottom:62px;right:110px;display:flex;gap:4px;padding:8px;border-radius:18px;background:#fff;box-shadow:0 0 0 1px #0000000a,0 8px 30px #00000016}.popover button{border:0;background:transparent;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#444;cursor:pointer}.popover button:hover{background:#f0f0f0}.popover button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #d4d4d4}.swatch{width:20px;height:20px;border-radius:50%;background:var(--swatch);box-shadow:inset 0 0 0 1px #0000000c}.custom-color{width:32px;height:32px;border:0;padding:6px;cursor:pointer;background:transparent;border-radius:50%}.custom-color::-webkit-color-swatch-wrapper{padding:0}.custom-color::-webkit-color-swatch{border:1px solid #ddd;border-radius:50%}.width-popover{right:98px}
-    .hint{pointer-events:none;position:fixed;bottom:87px;left:50%;transform:translateX(-50%);padding:8px 13px;border-radius:12px;background:#262626;color:white;font-size:12px;white-space:nowrap;opacity:0;transition:opacity .15s}.hint.show{opacity:1}
-    .notes{position:fixed;inset:0;pointer-events:none}.note{position:absolute;pointer-events:auto;width:220px;background:#fff;box-shadow:0 0 0 1px #0000000b,0 3px 8px #00000006,0 10px 24px #0000000d;border-radius:14px;overflow:hidden;color:#303030}.note-head{height:30px;padding:4px 6px 0 10px;display:flex;align-items:center;justify-content:space-between;cursor:grab;user-select:none;color:#b5b5b5}.note-head:active{cursor:grabbing}.note-head>svg{width:14px;height:14px}.note-head>div{display:flex;gap:1px}.note-head button{display:grid;place-items:center;width:25px;height:25px;padding:5px;border:0;background:transparent;color:#999;border-radius:50%}.note-head button:hover{background:#f1f1f1;color:#444}.note-head button svg{width:14px;height:14px}.note textarea{display:block;resize:vertical;min-height:100px;width:100%;padding:4px 14px 14px;border:0;outline:none;background:transparent;color:inherit;line-height:1.55;font-size:13px}.note textarea::placeholder{color:#aaa}.note.collapsed textarea{display:none}.note.collapsed{width:110px}
-    .launcher{position:fixed;right:22px;bottom:22px;pointer-events:auto;display:grid;place-items:center;width:44px;height:44px;padding:12px;background:#fff;color:#555;border:0;border-radius:50%;box-shadow:0 0 0 1px #0000000a,0 3px 14px #00000012}.launcher:hover{color:#111;background:#fafafa}.launcher svg{width:20px;height:20px}.hidden{display:none!important}.status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-    @media(max-width:650px){.toolbar{gap:0;padding:4px;bottom:12px;flex-wrap:wrap;justify-content:center;border-radius:23px}.tools{gap:0}.tool{min-width:36px;width:36px;height:36px;padding:9px}.divider{margin:0 2px}.hint{bottom:100px}.popover{right:10px;bottom:58px}}
-    :host([data-pdf]) .toolbar{top:48px;bottom:auto;left:0;transform:none;width:100%;max-width:none;min-height:52px;justify-content:center;flex-wrap:wrap;border-radius:0;background:#fafafa;box-shadow:0 1px 0 #00000009}
+    .toolbar{pointer-events:auto;position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:6px;border:1px solid #e4e4e4;border-radius:9px;background:#fff;box-shadow:0 4px 16px #0000000a;max-width:calc(100vw - 24px)}
+    .tools{display:flex;gap:2px}.tool{background:transparent;border:0;color:#666;border-radius:5px;min-width:32px;width:32px;height:32px;display:grid;place-items:center;padding:7px;transition:background .12s,color .12s}.tool svg{width:18px;height:18px}.tool:hover{background:#f1f1f1;color:#222}.tool:active{background:#e8e8e8}.tool[aria-pressed=true]{background:#ededed;color:#171717}.tool:disabled{opacity:.28;cursor:default}.tool:disabled:hover{background:transparent}
+    .divider{width:1px;height:16px;background:#e7e7e7;margin:0 5px}.color-dot{width:14px;height:14px;background:var(--ink,#292929);border-radius:4px;box-shadow:inset 0 0 0 1px #00000012}.width-dot{display:block;width:var(--width,3px);height:var(--width,3px);background:currentColor;border-radius:50%}
+    .popover{pointer-events:auto;position:absolute;bottom:50px;right:70px;display:flex;align-items:center;gap:2px;padding:6px;border:1px solid #e4e4e4;border-radius:8px;background:#fff;box-shadow:0 4px 16px #0000000d}.popover button{border:0;background:transparent;width:28px;height:28px;border-radius:5px;display:grid;place-items:center;color:#444;cursor:pointer}.popover button:hover{background:#f1f1f1}.popover button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #aaa}.swatch{width:16px;height:16px;border-radius:4px;background:var(--swatch);box-shadow:inset 0 0 0 1px #00000010}.color-popover{display:grid;grid-template-columns:repeat(8,28px)}.custom-color{grid-column:1/-1;width:100%;height:28px;border:1px solid #e7e7e7;padding:0 8px;margin-top:4px;color:#444;background:#fafafa;border-radius:4px;font-size:12px}.width-popover{right:40px}
+    .hint{pointer-events:none;position:fixed;bottom:79px;left:50%;transform:translateX(-50%);padding:7px 10px;border-radius:6px;background:#252525;color:white;font-size:12px;white-space:nowrap;opacity:0;transition:opacity .15s}.hint.show{opacity:1}
+    .notes{position:fixed;inset:0;pointer-events:none}.note{position:absolute;pointer-events:auto;width:232px;background:#fff;border:1px solid #dedede;box-shadow:0 4px 16px #0000000a;border-radius:8px;overflow:hidden;color:#303030}.note-head{height:32px;padding:4px 6px 0 10px;display:flex;align-items:center;justify-content:space-between;cursor:grab;user-select:none;color:#999}.note-head:active{cursor:grabbing}.note-head>svg{width:14px;height:14px}.note-head>div{display:flex;gap:2px}.note-head button{display:grid;place-items:center;width:24px;height:24px;padding:5px;border:0;background:transparent;color:#777;border-radius:4px}.note-head button:hover{background:#f1f1f1;color:#222}.note-head button svg{width:14px;height:14px}.note textarea{display:block;resize:none;min-height:104px;width:100%;padding:6px 12px 14px;border:0;outline:none;background:transparent;color:inherit;line-height:1.55;font-size:13px}.note textarea::placeholder{color:#999}.note.collapsed textarea{display:none}.note.collapsed{width:104px}
+    .launcher{position:fixed;right:20px;bottom:20px;pointer-events:auto;display:grid;place-items:center;width:36px;height:36px;padding:9px;background:#fff;color:#555;border:1px solid #e4e4e4;border-radius:7px;box-shadow:0 3px 12px #00000008}.launcher:hover{color:#111;background:#fafafa}.launcher svg{width:18px;height:18px}.hidden{display:none!important}.status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+    @media(max-width:650px){.toolbar{bottom:12px;flex-wrap:wrap;justify-content:center}.tools{gap:0}.tool{min-width:30px;width:30px;padding:6px}.divider{margin:0 3px}.hint{bottom:100px}.popover{right:0;bottom:48px}}
+    :host([data-pdf]) .toolbar{top:48px;bottom:auto;left:0;transform:none;width:100%;max-width:none;min-height:44px;justify-content:center;flex-wrap:wrap;border:0;border-radius:0;background:#fff;box-shadow:0 1px 0 #e8e8e8}
     :host([data-pdf]) .tools{flex-wrap:wrap;justify-content:center}
-    :host([data-pdf]) .popover{top:calc(100% + 8px);bottom:auto;right:8px;max-width:calc(100vw - 16px);flex-wrap:wrap}
-    :host([data-pdf]) .launcher{top:48px;bottom:auto;right:8px;width:44px;height:44px;border-radius:0 0 14px 14px;background:#fafafa}
-    :host([data-pdf]) .hint{top:calc(var(--ink-top-inset,100px) + 8px);bottom:auto;max-width:calc(100vw - 24px);white-space:normal}
+    :host([data-pdf]) .popover{top:calc(100% + 8px);bottom:auto;right:8px;max-width:calc(100vw - 16px)}
+    :host([data-pdf]) .launcher{top:48px;bottom:auto;right:8px;background:#fff}
+    :host([data-pdf]) .hint{top:calc(var(--ink-top-inset,92px) + 8px);bottom:auto;max-width:calc(100vw - 24px);white-space:normal}
     @media(prefers-reduced-motion:reduce){*{transition:none!important}}
     </style><svg class="overlay" aria-hidden="true"></svg><div class="capture"></div><div class="notes"></div><div class="hint" role="status"></div><div class="toolbar" role="toolbar" aria-label="Lasting Ink annotation tools"><div class="tools">${[
       ["select", "Select (V)"],
@@ -507,7 +232,7 @@
       )
       .join(
         "",
-      )}</div><div class="divider"></div><button class="tool color-button" data-action="color" title="Color" aria-label="Ink color" aria-expanded="false"><span class="color-dot"></span></button><button class="tool width-button" data-action="width" title="Stroke size" aria-label="Stroke size" aria-expanded="false"><span class="width-dot"></span></button><div class="popover color-popover hidden" role="group" aria-label="Colors">${palette.map((c) => `<button data-color="${c}" aria-label="Color ${c}" aria-pressed="${c === color}"><span class="swatch" style="--swatch:${c}"></span></button>`).join("")}<input class="custom-color" type="color" value="${color}" title="Custom color" aria-label="Custom color"></div><div class="popover width-popover hidden" role="group" aria-label="Stroke sizes">${[2, 3, 5, 8].map((w) => `<button data-width="${w}" aria-label="${w} pixel stroke" aria-pressed="${w === width}"><span class="width-dot" style="--width:${w}px"></span></button>`).join("")}</div><div class="divider"></div><button class="tool" data-action="undo" title="Undo (Cmd/Ctrl+Z)" aria-label="Undo last annotation">${svgIcon("undo")}</button><button class="tool" data-action="redo" title="Redo (Cmd/Ctrl+Shift+Z)" aria-label="Redo annotation">${svgIcon("redo")}</button><button class="tool" data-action="export" title="Export annotations as JSON" aria-label="Export annotations as JSON">${svgIcon("export")}</button><button class="tool" data-action="hide" title="Collapse toolbar" aria-label="Collapse toolbar">${svgIcon("close")}</button></div><button class="launcher hidden" title="Annotate" aria-label="Open annotation tools">${svgIcon("pen")}</button><span class="status" role="status"></span>`;
+      )}</div><div class="divider"></div><button class="tool color-button" data-action="color" title="Color" aria-label="Ink color" aria-expanded="false"><span class="color-dot"></span></button><button class="tool width-button" data-action="width" title="Stroke size" aria-label="Stroke size" aria-expanded="false"><span class="width-dot"></span></button><div class="popover color-popover hidden" role="group" aria-label="Colors">${palette.map((c) => `<button data-color="${c}" aria-label="Color ${c}" aria-pressed="${c === color}"><span class="swatch" style="--swatch:${c}"></span></button>`).join("")}<input class="custom-color" type="text" value="${color}" maxlength="7" spellcheck="false" title="Hex color" aria-label="Custom hex color"></div><div class="popover width-popover hidden" role="group" aria-label="Stroke sizes">${[2, 3, 5, 8].map((w) => `<button data-width="${w}" aria-label="${w} pixel stroke" aria-pressed="${w === width}"><span class="width-dot" style="--width:${w}px"></span></button>`).join("")}</div><div class="divider"></div><button class="tool" data-action="undo" title="Undo (Cmd/Ctrl+Z)" aria-label="Undo last annotation">${svgIcon("undo")}</button><button class="tool" data-action="redo" title="Redo (Cmd/Ctrl+Shift+Z)" aria-label="Redo annotation">${svgIcon("redo")}</button><button class="tool" data-action="export" title="Export annotations as JSON" aria-label="Export annotations as JSON">${svgIcon("export")}</button><button class="tool" data-action="hide" title="Collapse toolbar" aria-label="Collapse toolbar">${svgIcon("close")}</button></div><button class="launcher hidden" title="Annotate" aria-label="Open annotation tools">${svgIcon("pen")}</button><span class="status" role="status"></span>`;
     document.documentElement.append(host);
     let dockShadow;
     if (toolbarMount) {
@@ -518,17 +243,16 @@
       dockShadow.append(shadow.querySelector("style").cloneNode(true));
       const style = document.createElement("style");
       style.textContent = `
-        .toolbar{position:relative;inset:auto;transform:none;max-width:none;min-height:32px;padding:0;gap:4px;border-radius:8px;background:transparent;box-shadow:none;flex-wrap:nowrap}
-        .tools{gap:4px}.tool{width:32px;min-width:32px;height:32px;padding:8px;border-radius:6px}.tool svg{width:16px;height:16px}
-        .divider{height:16px;margin:0 4px}.color-dot{width:16px;height:16px}
-        .popover{top:calc(100% + 12px);bottom:auto;right:0;padding:8px;border-radius:10px;gap:4px;max-width:calc(100vw - 24px);flex-wrap:wrap}
-        .more-popover{right:auto;left:0;min-width:164px;flex-direction:column;gap:4px}
-        .more-popover .tool{width:100%;justify-content:start;display:flex;gap:8px;height:32px;padding:8px;border-radius:6px}
-        .more-popover .tool:hover,.more-popover .tool[aria-pressed=true]{border-radius:6px;background:#f1f1f1}
+        .toolbar{position:relative;inset:auto;transform:none;max-width:none;min-height:32px;padding:0;gap:2px;border:0;border-radius:0;background:transparent;box-shadow:none;flex-wrap:nowrap}
+        .tools{gap:2px}.tool{width:30px;min-width:30px;height:32px;padding:6px;border-radius:5px}.tool svg{width:18px;height:18px}
+        .divider{height:16px;margin:0 4px}.color-dot{width:14px;height:14px}
+        .popover{top:calc(100% + 12px);bottom:auto;right:0;max-width:calc(100vw - 24px)}
+        .more-popover{right:auto;left:0;min-width:176px;flex-direction:column;align-items:stretch;gap:2px}
+        .more-popover .tool{width:100%;justify-content:start;display:flex;gap:10px;height:32px;padding:8px;border-radius:5px}
+        .more-popover .tool:hover,.more-popover .tool[aria-pressed=true]{background:#f1f1f1}
         .more-popover .tool span{font-size:12px;white-space:nowrap}
-        .more-button{font-size:20px;line-height:1}
-        .launcher{position:static;width:32px;height:32px;padding:8px;border-radius:6px;background:transparent;box-shadow:none}
-        @media(max-width:600px){.toolbar,.tools{gap:2px}.tool{width:28px;min-width:28px}.divider{margin:0 2px}}
+        .launcher{position:static;width:32px;height:32px;padding:8px;border-radius:5px;background:transparent;box-shadow:none}
+        @media(max-width:600px){.toolbar,.tools{gap:1px}.tool{width:28px;min-width:28px}.divider{margin:0 3px}}
         @media(max-width:340px){.tool{width:24px;min-width:24px;padding:4px}}
       `;
       dockShadow.append(
@@ -544,7 +268,7 @@
       more.title = "More drawing tools";
       more.setAttribute("aria-label", "More drawing tools");
       more.setAttribute("aria-expanded", "false");
-      more.textContent = "⋯";
+      more.innerHTML = svgIcon("menu");
       const menu = document.createElement("div");
       menu.className = "popover more-popover hidden";
       menu.setAttribute("role", "group");
@@ -553,6 +277,7 @@
         ["marker", "Highlighter"],
         ["box", "Rectangle"],
         ["arrow", "Arrow"],
+        ["erase", "Eraser"],
       ]) {
         const button = dockShadow.querySelector(`[data-mode="${mode}"]`);
         const text = document.createElement("span");
@@ -1301,7 +1026,9 @@
       syncControls();
     }
     $(".launcher").onclick = toggle;
-    $(".custom-color").oninput = (e) => setColor(e.target.value);
+    $(".custom-color").oninput = (e) => {
+      if (/^#[0-9a-f]{6}$/i.test(e.target.value)) setColor(e.target.value);
+    };
     syncControls();
     document.addEventListener("pointerdown", (e) => {
       if (

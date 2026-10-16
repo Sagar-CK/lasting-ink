@@ -4,14 +4,24 @@
   font-weight: 100 900;
   font-display: swap;
 }
+:root {
+  --ink-text: #292929;
+  --ink-muted: #7b7b7b;
+  --ink-border: #e7e7e7;
+  --ink-hover: #f1f1f1;
+  --ink-selected: #ebebeb;
+  --ink-radius: 6px;
+  --ink-panel: #fff;
+  --ink-shadow: 0 4px 18px #0000000c;
+}
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
   overflow: hidden;
-  background: #f4f4f4;
-  color: #353535;
+  background: #f5f5f5;
+  color: var(--ink-text);
   font:
     12px Geist,
     Arial,
@@ -32,59 +42,109 @@ button,
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  min-height: 32px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--ink-radius);
   background: transparent;
   color: #666;
   cursor: pointer;
   text-decoration: none;
-  min-height: 32px;
 }
 button:hover,
 .button:hover {
-  background: #ededed;
+  background: var(--ink-hover);
   color: #222;
 }
 button:active {
-  background: #e4e4e4;
+  background: var(--ink-selected);
 }
 button:disabled {
-  opacity: 0.3;
+  opacity: 0.28;
   cursor: default;
 }
-button svg {
-  width: 17px;
-  height: 17px;
+button:disabled:hover {
+  background: transparent;
+}
+button svg,
+.menu-icon svg {
+  display: block;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 input,
 select {
-  height: 28px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: #f5f5f5;
-  color: #353535;
-  padding: 0 8px;
+  appearance: none;
+  height: 30px;
   min-width: 0;
+  border: 1px solid var(--ink-border);
+  border-radius: var(--ink-radius);
+  background: #fff;
+  color: var(--ink-text);
+  padding: 0 9px;
   font-variant-numeric: tabular-nums;
 }
-input[type="checkbox"] {
-  width: 14px;
-  height: 14px;
-  accent-color: #444;
-}
-input[type="color"] {
-  padding: 3px;
-  width: 36px;
-}
-input[type="range"] {
-  width: 100px;
+input::placeholder {
+  color: #999;
 }
 input[type="search"] {
   width: 100%;
 }
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  appearance: none;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  padding: 0;
+  border: 1px solid #c9c9c9;
+  border-radius: 3px;
+  background: #fff;
+  vertical-align: middle;
+  cursor: pointer;
+}
+input[type="checkbox"]:checked {
+  background: #343434 url("icons/check-light.svg") center / 13px no-repeat;
+  border-color: #343434;
+}
+input[type="radio"] {
+  border-radius: 50%;
+}
+input[type="radio"]:checked {
+  border: 4px solid #343434;
+}
+input[type="range"] {
+  appearance: none;
+  width: 100px;
+  height: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: #dedede;
+}
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #414141;
+  box-shadow: 0 0 0 1px #bcbcbc;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 8px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #414141;
+  box-shadow: 0 0 0 1px #bcbcbc;
+}
 :focus-visible {
-  outline: 2px solid #666;
+  outline: 2px solid #858585;
   outline-offset: 2px;
 }
 header {
@@ -94,11 +154,11 @@ header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: 8px 16px;
-  min-height: 48px;
-  padding: 8px 16px;
-  background: #fff;
-  box-shadow: 0 1px 0 #00000009;
+  gap: 4px 12px;
+  min-height: 52px;
+  padding: 9px 16px;
+  background: var(--ink-panel);
+  border-bottom: 1px solid var(--ink-border);
 }
 header button {
   width: 32px;
@@ -111,13 +171,12 @@ header button {
 .group {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 #zoom-controls {
   grid-column: 1;
   grid-row: 1;
   justify-self: start;
-  gap: 4px;
 }
 #page-controls {
   grid-column: 2;
@@ -130,118 +189,150 @@ header button {
   justify-self: end;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 #annotation-tools {
   display: flex;
   min-width: 0;
 }
-#page-number {
-  width: 36px;
+#page-number,
+#zoom {
+  height: 30px;
+  border-color: transparent;
+  background: transparent;
   text-align: center;
+  padding: 0 4px;
+}
+#page-number:hover,
+#zoom:hover {
+  background: var(--ink-hover);
+}
+#page-number:focus,
+#zoom:focus {
+  background: #f5f5f5;
+}
+#page-number {
+  width: 32px;
 }
 #page-count {
-  min-width: 32px;
-  color: #888;
+  min-width: 30px;
+  color: #919191;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 #zoom {
-  width: 56px;
-  text-align: center;
+  width: 46px;
 }
 .separator {
   width: 1px;
-  height: 18px;
-  background: #e5e5e5;
-  margin: 0 4px;
+  height: 16px;
+  background: var(--ink-border);
+  margin: 0 6px;
 }
 #findbar {
   grid-column: 1/-1;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-top: 4px;
+  gap: 6px;
+  padding-top: 6px;
+  padding-bottom: 2px;
 }
 #find-query {
-  max-width: 320px;
+  max-width: 300px;
+  background: #fafafa;
 }
 #find-count {
-  min-width: 85px;
-  color: #777;
+  min-width: 80px;
+  padding-left: 4px;
+  color: var(--ink-muted);
 }
 #findbar label {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  padding: 0 8px;
+  color: #666;
   white-space: nowrap;
 }
 #viewport {
   position: fixed;
-  inset: var(--pdf-top-inset, 48px) 0 0;
+  inset: var(--pdf-top-inset, 52px) 0 0;
   overflow: auto;
   overflow-anchor: none;
   outline: none;
 }
 #pages {
-  padding: 24px;
-  --page-margin: 0 auto 24px;
+  padding: 28px;
+  --page-margin: 0 auto 28px;
 }
 .pdfViewer .page {
   border: 0;
-  margin: 0 auto 24px;
+  margin: 0 auto 28px;
   box-shadow:
-    0 0 0 1px #00000008,
-    0 3px 14px #00000006;
+    0 0 0 1px #e8e8e8,
+    0 2px 5px #00000003;
 }
 .pdfViewer .spread {
-  margin: 0 auto 24px;
+  margin: 0 auto 28px;
   white-space: nowrap;
 }
 .pdfViewer .spread > .page {
   display: inline-block;
   margin: 0 8px;
 }
-.textLayer ::selection {
-  background: #9ac0e866;
-}
-body.sidebar-open #viewport {
-  left: 264px;
-}
-.annotationLayer {
-  --input-focus-border-color: #666;
-  --input-unfocused-border-color: #ccc;
-}
 .textLayer {
   caret-color: #111;
+}
+.textLayer ::selection {
+  background: #b9c2c84d;
+}
+.textLayer .highlight {
+  background: #c8ced36b;
+}
+.textLayer .highlight.selected {
+  background: #a1adb875;
+}
+body.sidebar-open #viewport {
+  left: 256px;
 }
 #sidebar {
   position: fixed;
   left: 0;
-  top: var(--pdf-top-inset, 48px);
+  top: var(--pdf-top-inset, 52px);
   bottom: 0;
-  width: 264px;
-  border-right: 1px solid #e5e5e5;
+  width: 256px;
+  border-right: 1px solid var(--ink-border);
   background: #fafafa;
   z-index: 3;
   overflow: auto;
-  padding: 12px;
+  padding: 0 12px 16px;
 }
 #sidebar-tabs {
   display: flex;
-  gap: 2px;
+  gap: 0;
   position: sticky;
-  top: -12px;
+  top: 0;
   background: #fafafa;
-  padding: 8px 0;
+  padding: 8px 0 0;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--ink-border);
   z-index: 1;
 }
 #sidebar-tabs button {
-  padding: 6px 10px;
+  flex: 1;
+  padding: 8px 4px 10px;
+  border-radius: 0;
+  border-bottom: 1px solid transparent;
   font-size: 11px;
+  color: #858585;
+}
+#sidebar-tabs button:hover {
+  background: transparent;
+  color: #333;
 }
 #sidebar-tabs [aria-selected="true"] {
-  background: #e9e9e9;
-  color: #222;
+  border-bottom-color: #515151;
+  color: #292929;
 }
 #sidebar section {
   padding-top: 8px;
@@ -249,20 +340,26 @@ body.sidebar-open #viewport {
 .thumbnail {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 0 auto 16px;
-  padding: 8px;
+  gap: 10px;
+  margin: 0 auto 12px;
+  padding: 12px;
   width: 100%;
   min-height: 180px;
+  color: #888;
+  font-size: 11px;
 }
 .thumbnail canvas {
-  max-width: 170px;
+  max-width: 160px;
   height: auto;
-  background: white;
-  box-shadow: 0 1px 5px #0002;
+  background: #fff;
+  box-shadow: 0 0 0 1px #e4e4e4;
 }
 .thumbnail[aria-current="page"] {
-  background: #e9e9e9;
+  background: #eeeeed;
+  color: #353535;
+}
+.thumbnail[aria-current="page"] canvas {
+  box-shadow: 0 0 0 1px #929292;
 }
 .outline-item {
   justify-content: start;
@@ -271,70 +368,113 @@ body.sidebar-open #viewport {
   padding: 8px;
   min-height: 32px;
   height: auto;
-  line-height: 1.4;
+  line-height: 1.5;
+}
+.bookmark-row {
+  display: flex;
+  align-items: center;
+}
+.bookmark-row .outline-item {
+  gap: 8px;
+}
+.bookmark-row .outline-item svg {
+  width: 14px;
+  height: 14px;
+  color: #999;
+}
+.bookmark-row .remove-bookmark {
+  width: 28px;
+  min-height: 28px;
+  opacity: 0;
+}
+.bookmark-row:hover .remove-bookmark,
+.bookmark-row:focus-within .remove-bookmark {
+  opacity: 1;
+}
+.remove-bookmark svg {
+  width: 14px;
+  height: 14px;
 }
 .outline-children {
   padding-left: 12px;
+  border-left: 1px solid #e9e9e9;
+  margin-left: 8px;
 }
 .empty {
-  color: #888;
-  padding: 12px;
-  line-height: 1.6;
+  color: #8b8b8b;
+  padding: 16px 8px;
+  font-size: 12px;
+  line-height: 1.65;
 }
 .note-card {
   display: flex;
   flex-direction: column;
   align-items: start;
   gap: 6px;
-  padding: 10px;
-  margin: 6px 0;
+  padding: 12px 8px;
+  margin: 0;
   width: 100%;
   text-align: left;
-  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  border-bottom: 1px solid #ededed;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  line-height: 1.5;
 }
 .note-card small {
-  color: #888;
+  color: #8c8c8c;
+  font-size: 10px;
 }
 .note-card[aria-pressed="true"] {
-  border-color: #888;
-  background: #eee;
+  background: #ebebeb;
 }
 #annotation-editor {
-  padding: 10px 0;
+  padding: 14px 4px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
+  border-bottom: 1px solid var(--ink-border);
 }
 #annotation-editor label {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
+  color: #777;
+}
+#annotation-color {
+  width: 80px;
+  font-size: 11px;
 }
 #delete-annotation {
-  padding: 4px 8px;
+  padding: 0 8px;
+  font-size: 11px;
 }
 .attachment {
   width: 100%;
   justify-content: start;
+  gap: 8px;
   padding: 8px;
   overflow-wrap: anywhere;
   text-align: left;
 }
+.attachment svg {
+  color: #8b8b8b;
+  width: 16px;
+  height: 16px;
+}
 .menu {
   position: fixed;
   right: 12px;
-  top: calc(var(--pdf-top-inset, 48px) + 6px);
-  width: 264px;
-  max-height: calc(100vh - var(--pdf-top-inset, 48px) - 20px);
+  top: calc(var(--pdf-top-inset, 52px) + 6px);
+  width: 248px;
+  max-height: calc(100vh - var(--pdf-top-inset, 52px) - 20px);
   overflow: auto;
   background: #fff;
-  box-shadow: 0 4px 24px #0002;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  padding: 6px;
-  z-index: 20;
+  box-shadow: var(--ink-shadow);
+  border: 1px solid #dedede;
+  border-radius: 8px;
+  padding: 5px;
+  z-index: 2147483647;
 }
 .menu button,
 .menu label {
@@ -342,89 +482,222 @@ body.sidebar-open #viewport {
   justify-content: start;
   align-items: center;
   text-align: left;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  padding: 8px;
-  min-height: 34px;
-  border-radius: 6px;
+  padding: 6px 8px;
+  min-height: 32px;
+  border-radius: 5px;
+  color: #4d4d4d;
+  font-size: 12px;
+}
+.menu label {
+  cursor: pointer;
 }
 .menu label:hover {
-  background: #f1f1f1;
+  background: var(--ink-hover);
+}
+.menu label input {
+  margin: 0 2px;
+}
+.menu-icon {
+  display: inline-flex;
+  width: 18px;
+  color: #808080;
+  flex: 0 0 18px;
+}
+.menu-icon svg {
+  width: 16px;
+  height: 16px;
 }
 .menu hr {
   border: 0;
-  border-top: 1px solid #eee;
-  margin: 6px;
+  border-top: 1px solid var(--ink-border);
+  margin: 5px 3px;
 }
-.menu span {
+.menu .section-label {
   display: block;
-  color: #777;
-  font-size: 11px;
+  padding: 8px 8px 4px;
+  color: #a0a0a0;
+  font-size: 10px;
+}
+#sync-status {
+  display: block;
+  color: #999;
+  font-size: 10px;
   line-height: 1.5;
-  padding: 4px 8px;
+  padding: 5px 8px 6px;
 }
 #status {
+  pointer-events: none;
   position: fixed;
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  background: #252525;
+  background: #292929;
   color: #fff;
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 8px 12px;
   max-width: 80vw;
-  z-index: 30;
+  z-index: 2147483647;
   line-height: 1.5;
 }
 #status:empty {
   display: none;
 }
 #progress {
+  appearance: none;
   position: fixed;
-  top: var(--pdf-top-inset, 48px);
+  top: var(--pdf-top-inset, 52px);
   left: 0;
   width: 100%;
-  height: 3px;
+  height: 2px;
   border: 0;
   z-index: 25;
-  accent-color: #777;
+  background: #e8e8e8;
+}
+#progress::-webkit-progress-bar {
+  background: #e8e8e8;
+}
+#progress::-webkit-progress-value {
+  background: #777;
+}
+#progress::-moz-progress-bar {
+  background: #777;
 }
 dialog {
-  border: 1px solid #ddd;
-  border-radius: 12px;
+  z-index: 2147483647;
+  border: 1px solid #dedede;
+  border-radius: 9px;
   padding: 24px;
-  width: min(400px, 90vw);
-  color: #333;
+  width: min(380px, 90vw);
+  color: var(--ink-text);
   background: #fff;
-  box-shadow: 0 12px 40px #0002;
+  box-shadow: var(--ink-shadow);
 }
 dialog::backdrop {
-  background: #0003;
+  background: #0002;
 }
 dialog h2 {
-  font-size: 17px;
+  font-size: 16px;
+  font-weight: 500;
   margin: 0 0 16px;
+  letter-spacing: -0.3px;
 }
 dialog p {
-  line-height: 1.5;
-  color: #777;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #888;
+}
+dialog label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
 }
 dialog input:not([type="checkbox"]) {
   width: 100%;
-  height: 36px;
+  height: 34px;
 }
 dialog form > div {
   display: flex;
   justify-content: end;
-  gap: 8px;
+  gap: 6px;
   margin-top: 20px;
 }
 dialog button {
   padding: 6px 12px;
 }
 dialog button:last-child {
-  background: #292929;
-  color: white;
+  background: #2d2d2d;
+  color: #fff;
+}
+dialog button:last-child:hover {
+  background: #444;
+}
+/* PDF.js supplies behavior; every visible control and comment uses our theme. */
+.annotationLayer {
+  --input-focus-border-color: #777;
+  --input-unfocused-border-color: #ddd;
+  --input-hover-border-color: #aaa;
+  --input-focus-outline: none;
+}
+.annotationLayer .textAnnotation img,
+.annotationLayer .fileAttachmentAnnotation img {
+  background: #fff !important;
+  border: 1px solid #d7d7d7;
+  border-radius: 5px;
+  padding: 3px;
+  box-shadow: 0 1px 3px #00000005;
+}
+.annotationLayer .textAnnotation:hover img,
+.annotationLayer .fileAttachmentAnnotation:hover img {
+  background: #f1f1f1 !important;
+  border-color: #aaa;
+}
+.annotationLayer .popup {
+  background: #fff !important;
+  color: #333 !important;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  outline: none !important;
+  box-shadow: var(--ink-shadow);
+  padding: 14px;
+  font:
+    12px Geist,
+    Arial,
+    sans-serif;
+  cursor: default;
+}
+.annotationLayer .popup * {
+  font-size: 12px;
+}
+.annotationLayer .popup > .header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.annotationLayer .popup > .header h1 {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0;
+  color: #444;
+}
+.annotationLayer .popup > .header .popupDate {
+  font-size: 10px;
+  color: #999;
+  margin: 0;
+}
+.annotationLayer .popupContent {
+  border: 0;
+  margin-top: 0;
+  padding-top: 0;
+  line-height: 1.6;
+}
+.annotationLayer
+  :is(.linkAnnotation, .buttonWidgetAnnotation.pushButton):not(.hasBorder)
+  > a:hover {
+  opacity: 1;
+  background: #88888814;
+  box-shadow: none;
+}
+.annotationLayer .linkAnnotation.hasBorder:hover {
+  background: #88888814;
+}
+.annotationLayer .choiceWidgetAnnotation select {
+  appearance: none;
+  background: #fff url("icons/next.svg") right 5px center / 12px no-repeat !important;
+  padding-right: 20px;
+}
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked {
+  background: #343434 url("icons/check-light.svg") center / 85% no-repeat !important;
+  border-color: #343434;
+}
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before,
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::after {
+  content: none;
+}
+.annotationLayer .buttonWidgetAnnotation.radioButton input:checked::before {
+  background: #343434;
 }
 .print-page {
   break-after: page;
@@ -432,7 +705,7 @@ dialog button:last-child {
 .print-page:last-child {
   break-after: auto;
 }
-@media (max-width: 1250px) {
+@media (max-width: 1040px) {
   #right-controls {
     display: contents;
   }
@@ -453,10 +726,10 @@ dialog button:last-child {
     justify-self: center;
   }
 }
-@media (max-width: 650px) {
+@media (max-width: 600px) {
   header {
-    padding: 8px 12px;
-    gap: 8px;
+    padding: 8px;
+    gap: 4px 8px;
   }
   #page-controls {
     grid-column: 1/-1;
@@ -477,8 +750,8 @@ dialog button:last-child {
     left: 0;
   }
   #sidebar {
-    box-shadow: 4px 0 20px #0002;
     z-index: 8;
+    box-shadow: 2px 0 10px #00000008;
   }
   #findbar {
     flex-wrap: wrap;
@@ -495,10 +768,6 @@ dialog button:last-child {
   }
 }
 
-#document-menu,
-dialog {
-  z-index: 2147483647;
-}
-#status {
-  pointer-events: none;
+.annotationLayer .popup > .header:has(h1:not(:empty), .popupDate:not(:empty)) {
+  margin-bottom: 8px;
 }
