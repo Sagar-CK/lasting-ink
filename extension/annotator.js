@@ -252,6 +252,19 @@
         .more-popover .tool:hover,.more-popover .tool[aria-pressed=true]{background:#f1f1f1}
         .more-popover .tool span{font-size:12px;white-space:nowrap}
         .launcher{position:static;width:32px;height:32px;padding:8px;border-radius:5px;background:transparent;box-shadow:none}
+        :host{color:var(--ink-text,#f1f1f1)}
+        .tool{color:var(--ink-icon,#e8eaed)}
+        .tool:hover{background:var(--ink-hover,#4a4a4a);color:var(--ink-text,#f1f1f1)}
+        .tool[aria-pressed=true],.tool:active{background:var(--ink-selected,#5b5b5b);color:var(--ink-text,#f1f1f1)}
+        .tool:disabled:hover{background:transparent}
+        .divider{background:var(--ink-border,#555)}
+        .color-dot,.swatch{box-shadow:inset 0 0 0 1px #ffffff55}
+        .popover{background:var(--ink-panel,#3c3c3c);border-color:var(--ink-border,#555);box-shadow:var(--ink-shadow,0 4px 18px #0005)}
+        .popover button{color:var(--ink-icon,#e8eaed)}
+        .popover button:hover,.more-popover .tool:hover{background:var(--ink-hover,#4a4a4a)}
+        .popover button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #aaa}
+        .more-popover .tool[aria-pressed=true]{background:var(--ink-selected,#5b5b5b)}
+        .custom-color{background:var(--ink-input,#1e1e1e);color:var(--ink-text,#f1f1f1);border-color:var(--ink-border,#555)}
         @media(max-width:600px){.toolbar,.tools{gap:1px}.tool{width:28px;min-width:28px}.divider{margin:0 3px}}
         @media(max-width:340px){.tool{width:24px;min-width:24px;padding:4px}}
       `;

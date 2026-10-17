@@ -4,7 +4,7 @@
 
 A local PDF reader and webpage annotation extension for Arc and Chrome (Chromium 151+).
 
-The development build is **0.5.3**. Load the `extension/` folder to use it. The [last published release](https://github.com/Sagar-CK/lasting-ink/releases/tag/v0.4.1) predates the reader improvements below.
+The development build is **0.5.4**. Load the `extension/` folder to use it. The [last published release](https://github.com/Sagar-CK/lasting-ink/releases/tag/v0.4.1) predates the reader improvements below.
 
 ## Install
 
@@ -15,7 +15,7 @@ The development build is **0.5.3**. Load the `extension/` folder to use it. The 
 
 ## Read PDFs
 
-All reader icons, including PDF comment and attachment markers, use the same Lasting Ink SVG set. Controls, menus, sidebars, and comments share a flat white/grey theme with consistent spacing. PDF pages sit on a black reading background.
+All reader icons, including PDF comment and attachment markers, use the same Lasting Ink SVG set. The toolbar, menus, and sidebar use a dark grey palette matching Chromium’s PDF viewer. White PDF pages sit on a charcoal reading background, with consistent spacing and light controls.
 
 The page controls stay in the center of the top bar. Zoom and page-fit are on the left; annotation tools and document options are on the right.
 
