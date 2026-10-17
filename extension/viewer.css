@@ -12,6 +12,7 @@
   --ink-selected: #ebebeb;
   --ink-radius: 6px;
   --ink-panel: #fff;
+  --ink-canvas: #111;
   --ink-shadow: 0 4px 18px #0000000c;
 }
 * {
@@ -20,7 +21,7 @@
 body {
   margin: 0;
   overflow: hidden;
-  background: #f5f5f5;
+  background: var(--ink-canvas);
   color: var(--ink-text);
   font:
     12px Geist,
@@ -259,6 +260,7 @@ header button {
   inset: var(--pdf-top-inset, 52px) 0 0;
   overflow: auto;
   overflow-anchor: none;
+  background: var(--ink-canvas);
   outline: none;
 }
 #pages {
@@ -269,8 +271,8 @@ header button {
   border: 0;
   margin: 0 auto 28px;
   box-shadow:
-    0 0 0 1px #e8e8e8,
-    0 2px 5px #00000003;
+    0 0 0 1px #0006,
+    0 2px 8px #0003;
 }
 .pdfViewer .spread {
   margin: 0 auto 28px;
