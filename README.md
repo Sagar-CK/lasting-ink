@@ -4,7 +4,7 @@
 
 A local PDF reader and webpage annotation extension for Arc and Chrome (Chromium 151+).
 
-The development build is **0.5.4**. Load the `extension/` folder to use it. The [last published release](https://github.com/Sagar-CK/lasting-ink/releases/tag/v0.4.1) predates the reader improvements below.
+The development build is **0.5.5**. Load the `extension/` folder to use it. The [last published release](https://github.com/Sagar-CK/lasting-ink/releases/tag/v0.4.1) predates the reader improvements below.
 
 ## Install
 
@@ -49,6 +49,8 @@ Select a drawing to move it or use its corner handle to resize it. The Notes sid
 `Cmd/Ctrl+Z` undoes annotations; `Cmd/Ctrl+Shift+Z` redoes them. `Ctrl+Y` also redoes on Windows/Linux. Inside text fields, normal editing shortcuts apply. Undo history lasts for the current visit.
 
 **Cmd + scroll** (Ctrl + scroll on Windows/Linux) zooms the PDF; scroll up to zoom in and down to zoom out. Trackpad pinch also works.
+
+**Left/Right arrows** go directly to the previous/next PDF page when reading. They keep their normal behavior in text fields and reader controls, while text is selected, or while an annotation is selected. Escape or a blank page click clears annotation selection. Presentation mode also accepts Up/Down and Page Up/Page Down.
 
 `Cmd/Ctrl +/−` zooms, `Cmd/Ctrl+0` resets zoom, `Cmd/Ctrl+S` saves an annotated PDF, and `Cmd/Ctrl+P` opens print options. Escape returns to selection mode. On webpages, the floating toolbar can be collapsed and reopened with the pen button.
 

@@ -118,6 +118,29 @@ async function page({
     },
   };
 }
+test("Escape and a blank PDF click clear drawing selection for page navigation", async () => {
+  const p = await page({ pdf: true });
+  try {
+    p.click('[data-mode="box"]');
+    p.pointer("pointerdown", 200, 200);
+    p.pointer("pointermove", 300, 300);
+    p.pointer("pointerup", 300, 300);
+    const id = p.api.list()[0].id;
+    p.api.select(id);
+    p.w.document.dispatchEvent(
+      new p.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+    );
+    assert.equal(p.api.selected(), null);
+    p.api.select(id);
+    p.w.document
+      .querySelector("main")
+      .dispatchEvent(new p.w.MouseEvent("pointerdown", { bubbles: true }));
+    assert.equal(p.api.selected(), null);
+    assert.equal(p.api.list().length, 1);
+  } finally {
+    p.close();
+  }
+});
 test("PDF ink and editable notes survive closing and reopening with normalized page coordinates", async () => {
   const store = {};
   let p = await page({

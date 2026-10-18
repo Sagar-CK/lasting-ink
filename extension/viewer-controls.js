@@ -33,6 +33,48 @@ export function pageNumber(value, count) {
   return Number.isInteger(n) && n >= 1 && n <= count ? n : null;
 }
 
+export function pageKeyStep(
+  event,
+  {
+    presentation = false,
+    annotationSelected = false,
+    textSelected = false,
+  } = {},
+) {
+  if (
+    event.defaultPrevented ||
+    event.isComposing ||
+    annotationSelected ||
+    textSelected ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.altKey ||
+    event.shiftKey
+  )
+    return 0;
+  if (
+    event
+      .composedPath()
+      .some((node) =>
+        node?.matches?.(
+          'input,textarea,select,button,header,aside,dialog,#document-menu,[role="textbox"],[role="toolbar"],[role="menu"],[role="tablist"],[role="slider"],[role="combobox"],[role="listbox"],[contenteditable]:not([contenteditable="false"])',
+        ),
+      )
+  )
+    return 0;
+  if (
+    event.key === "ArrowRight" ||
+    (presentation && ["ArrowDown", "PageDown"].includes(event.key))
+  )
+    return 1;
+  if (
+    event.key === "ArrowLeft" ||
+    (presentation && ["ArrowUp", "PageUp"].includes(event.key))
+  )
+    return -1;
+  return 0;
+}
+
 export function wheelZoom(event, current, pageHeight = 800) {
   if (
     !(event.metaKey || event.ctrlKey) ||

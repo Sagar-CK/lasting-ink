@@ -1,10 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { JSDOM } from "jsdom";
 import {
   fitZoom,
   parseZoom,
   nextZoom,
   pageNumber,
+  pageKeyStep,
   wheelZoom,
   routeWheel,
 } from "../extension/viewer-controls.js";
@@ -35,6 +37,85 @@ test("page navigation only accepts whole pages in the document", () => {
   assert.equal(pageNumber("12", 12), 12);
   for (const n of ["", 0, 13, 1.5, "abc"])
     assert.equal(pageNumber(n, 12), null);
+});
+
+test("Left/Right turn pages only in reading context, preserving selections and control keys", () => {
+  const dom = new JSDOM(`<body><header><button>Tools</button></header>
+    <aside><button>Page thumbnail</button></aside><dialog open><button>Cancel</button></dialog>
+    <div id="viewport"><p>PDF text</p><input><textarea></textarea><select><option>One</option></select>
+    <div contenteditable="true"><span>Editable text</span></div><div role="textbox"></div></div>
+    <div id="document-menu"><button>Rotate</button></div><div id="shadow-host"></div></body>`);
+  const w = dom.window,
+    d = w.document,
+    turns = [];
+  let state = {};
+  d.addEventListener("keydown", (event) => {
+    const step = pageKeyStep(event, state);
+    if (step) {
+      event.preventDefault();
+      turns.push(step);
+    }
+  });
+  const press = (target, key = "ArrowRight", options = {}) => {
+    const event = new w.KeyboardEvent("keydown", {
+      key,
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+      ...options,
+    });
+    target.dispatchEvent(event);
+    return event.defaultPrevented;
+  };
+  assert.equal(press(d.querySelector("p")), true);
+  assert.equal(press(d.body, "ArrowLeft"), true);
+  assert.deepEqual(turns, [1, -1]);
+  for (const selector of [
+    "input",
+    "textarea",
+    "select",
+    "[contenteditable] span",
+    '[role="textbox"]',
+    "header button",
+    "aside button",
+    "dialog button",
+    "#document-menu button",
+  ])
+    assert.equal(press(d.querySelector(selector)), false, selector);
+  const shadow = d.querySelector("#shadow-host").attachShadow({ mode: "open" });
+  shadow.innerHTML = '<textarea aria-label="Note"></textarea>';
+  assert.equal(press(shadow.querySelector("textarea")), false);
+  for (const modifier of [
+    "shiftKey",
+    "metaKey",
+    "ctrlKey",
+    "altKey",
+    "isComposing",
+  ])
+    assert.equal(
+      press(d.body, "ArrowRight", { [modifier]: true }),
+      false,
+      modifier,
+    );
+  for (const selection of ["annotationSelected", "textSelected"]) {
+    state = { [selection]: true };
+    assert.equal(press(d.body), false, selection);
+  }
+  state = {};
+  assert.equal(press(d.body, "ArrowDown"), false);
+  assert.equal(press(d.body, "PageDown"), false);
+  assert.deepEqual(turns, [1, -1]);
+  state = { presentation: true };
+  press(d.body, "ArrowDown");
+  press(d.body, "PageUp");
+  assert.deepEqual(turns, [1, -1, 1, -1]);
+  const consumed = new w.KeyboardEvent("keydown", {
+    key: "ArrowRight",
+    cancelable: true,
+  });
+  consumed.preventDefault();
+  assert.equal(pageKeyStep(consumed), 0);
+  dom.window.close();
 });
 
 test("Cmd/Ctrl wheel zoom handles mouse and trackpad deltas without ordinary scrolling", () => {

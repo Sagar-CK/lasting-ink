@@ -1044,11 +1044,21 @@
     };
     syncControls();
     document.addEventListener("pointerdown", (e) => {
-      if (
-        !e.composedPath().includes(host) &&
-        !e.composedPath().includes(toolbarMount)
-      )
+      const path = e.composedPath();
+      if (!path.includes(host) && !path.includes(toolbarMount)) {
         closePopovers();
+        if (
+          pdf &&
+          selectedId &&
+          (viewportElement
+            ? path.includes(viewportElement)
+            : surfaces().some((s) => path.includes(s.element)))
+        ) {
+          selectedId = null;
+          onChange([...items.values()]);
+          request();
+        }
+      }
     });
     document.addEventListener(
       "keydown",
@@ -1135,6 +1145,10 @@
           }
         }
         if (e.key === "Escape") {
+          if (selectedId) {
+            selectedId = null;
+            onChange([...items.values()]);
+          }
           setMode("select");
           return;
         }

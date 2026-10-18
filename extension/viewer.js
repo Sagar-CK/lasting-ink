@@ -14,6 +14,7 @@ import {
   clampZoom,
   nextZoom,
   pageNumber,
+  pageKeyStep,
   routeWheel,
   wheelZoom,
 } from "./viewer-controls.js";
@@ -1227,10 +1228,13 @@ document.addEventListener(
   { passive: false },
 );
 document.addEventListener("keydown", (e) => {
+  if (e.defaultPrevented || e.isComposing) return;
   const edit = e
     .composedPath()
     .some((n) =>
-      n?.matches?.('input,textarea,select,[contenteditable="true"]'),
+      n?.matches?.(
+        'input,textarea,select,[role="textbox"],[contenteditable]:not([contenteditable="false"])',
+      ),
     );
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f") {
     e.preventDefault();
@@ -1249,22 +1253,17 @@ document.addEventListener("keydown", (e) => {
     else if (k === "0") viewer.currentScaleValue = "auto";
     else setZoom(nextZoom(viewer.currentScale, k === "-" ? -1 : 1));
   }
-  if (
-    document.fullscreenElement &&
-    [
-      "ArrowRight",
-      "ArrowDown",
-      "PageDown",
-      "ArrowLeft",
-      "ArrowUp",
-      "PageUp",
-    ].includes(e.key)
-  ) {
+  const step = ready
+    ? pageKeyStep(e, {
+        presentation: !!document.fullscreenElement,
+        annotationSelected: !!ink?.selected(),
+        textSelected: getSelection()?.isCollapsed === false,
+      })
+    : 0;
+  if (step) {
     e.preventDefault();
-    goTo(
-      viewer.currentPageNumber +
-        (["ArrowRight", "ArrowDown", "PageDown"].includes(e.key) ? 1 : -1),
-    );
+    goTo(viewer.currentPageNumber + step);
+    return;
   }
   if (e.key === "Escape") menu(false);
   if ((e.key === "Delete" || e.key === "Backspace") && ink?.selected()) {
