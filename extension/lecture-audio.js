@@ -69,7 +69,18 @@
     subtree: true,
     characterData: true,
   });
-  for (const event of ["loadedmetadata", "play", "pointerdown", "keydown"]) {
+  // resume() must run inside the trusted event, not in the delayed scan.
+  // Autoplay can leave the first resume pending indefinitely in Chromium.
+  const unlock = () => {
+    if (!course()) return;
+    context ||= new AudioContext();
+    if (context.state !== "running") context.resume().then(schedule, () => {});
+    schedule();
+  };
+  for (const event of ["pointerdown", "keydown", "click"]) {
+    document.addEventListener(event, unlock, true);
+  }
+  for (const event of ["loadedmetadata", "play"]) {
     document.addEventListener(event, schedule, true);
   }
   window.__lastingInkLectureAudio = {

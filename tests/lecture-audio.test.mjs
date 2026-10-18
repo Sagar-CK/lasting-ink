@@ -102,3 +102,35 @@ test("cross-origin audio without CORS is left untouched to avoid silence", async
     dom.window.close();
   }
 });
+
+test("a playback gesture synchronously unlocks audio after autoplay was blocked", async () => {
+  const { dom, w, audio, contexts } = setup();
+  const waiting = [];
+  let inGesture = false;
+  w.AudioContext.prototype.resume = function () {
+    if (inGesture) {
+      this.state = "running";
+      waiting.splice(0).forEach((resolve) => resolve());
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => waiting.push(resolve));
+  };
+  try {
+    // Create the context, then simulate Chromium suspending it before playback.
+    await audio.refresh();
+    contexts[0].state = "suspended";
+    const blockedRefresh = audio.refresh();
+    inGesture = true;
+    w.document.dispatchEvent(new w.Event("pointerdown", { bubbles: true }));
+    inGesture = false;
+    assert.equal(
+      contexts[0].state,
+      "running",
+      "resume must happen in the gesture",
+    );
+    await blockedRefresh;
+    assert.equal(audio.tracks.size, 1);
+  } finally {
+    dom.window.close();
+  }
+});
