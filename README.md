@@ -85,3 +85,7 @@ npm run package
 The installable ZIP is written to `dist/`. All runtime code, fonts, OCR models, and licenses are bundled under `extension/`; the reader does not depend on remote script CDNs.
 
 [Geist](https://github.com/vercel/geist-font) · [PDF.js](https://github.com/mozilla/pdf.js) · [pdf-lib](https://github.com/Hopding/pdf-lib) · [Tesseract.js](https://github.com/naptha/tesseract.js). Bundled licenses are under `extension/vendor/`.
+
+### Neural Networks lecture audio
+
+On Columbia CVN Panopto viewer pages for COMSW4776 Neural Networks & Deep Learning, Lasting Ink mixes lecture audio to mono so both ears receive the same sound. Other courses, websites, and system audio settings are unchanged. The rule runs automatically when the recording loads; playback controls and volume continue to work normally.
