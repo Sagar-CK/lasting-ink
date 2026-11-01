@@ -428,6 +428,10 @@
       change(item.id, item);
       return item;
     }
+    // Choosing the active tool again puts it down and returns to Select.
+    function toggleMode(next) {
+      setMode(next === mode ? "select" : next);
+    }
     function setMode(next) {
       mode = next;
       capture.className =
@@ -968,7 +972,7 @@
       root.addEventListener("click", async (e) => {
         const tool = e.target.closest("[data-mode]");
         if (tool) {
-          setMode(tool.dataset.mode);
+          toggleMode(tool.dataset.mode);
           return;
         }
         const action = e.target.closest("[data-action]")?.dataset.action;
@@ -1194,7 +1198,7 @@
         }[e.key.toLowerCase()];
         if (next && !hidden) {
           e.preventDefault();
-          setMode(next);
+          toggleMode(next);
         }
       },
       true,

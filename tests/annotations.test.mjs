@@ -230,6 +230,29 @@ test("text highlights re-anchor after inserted content, including element select
   assert.equal(p.root.querySelectorAll(".overlay rect").length, 1);
   p.close();
 });
+test("choosing the active tool again returns to Select, by click or shortcut", async () => {
+  const p = await page({ pdf: true });
+  const pressed = () =>
+    p.root.querySelector('[data-mode][aria-pressed="true"]').dataset.mode;
+  const key = (k) =>
+    p.w.document.dispatchEvent(
+      new p.w.KeyboardEvent("keydown", { key: k, bubbles: true }),
+    );
+  try {
+    p.click('[data-mode="erase"]');
+    assert.equal(pressed(), "erase");
+    p.click('[data-mode="erase"]');
+    assert.equal(pressed(), "select");
+    p.click('[data-mode="select"]');
+    assert.equal(pressed(), "select");
+    key("p");
+    assert.equal(pressed(), "pen");
+    key("p");
+    assert.equal(pressed(), "select");
+  } finally {
+    p.close();
+  }
+});
 test("the text tool writes straight onto the page: no card, no placeholder, empty boxes vanish", async () => {
   const p = await page();
   const newText = async (x) => {
