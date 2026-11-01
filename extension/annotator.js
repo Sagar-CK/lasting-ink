@@ -1,6 +1,7 @@
 (() => {
   if (globalThis.startLastingInk) return;
   const NS = "http://www.w3.org/2000/svg";
+  const TEXT_SIZES = [6, 8, 11, 15];
   const palette = [
     "#292929",
     "#767676",
@@ -174,6 +175,11 @@
       color = palette[0],
       inkColor = palette[0],
       highlightColor = "#efd27f",
+      // Text has its own colour and size; 8pt reads as an annotation, not body copy.
+      textColor = palette[0],
+      textSize = 8,
+      activeNoteId = null,
+      pointerInToolbar = false,
       // Each drawing tool keeps its own stroke; shapes default finer than ink.
       widths = { pen: 3, marker: 3, box: 2, arrow: 2 },
       width = widths.pen,
@@ -212,7 +218,7 @@
     .toolbar{pointer-events:auto;position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:6px;border:1px solid #e4e4e4;border-radius:9px;background:#fff;box-shadow:0 4px 16px #0000000a;max-width:calc(100vw - 24px)}
     .tools{display:flex;gap:2px}.tool{background:transparent;border:0;color:#666;border-radius:5px;min-width:32px;width:32px;height:32px;display:grid;place-items:center;padding:7px;transition:background .12s,color .12s}.tool svg{width:18px;height:18px}.tool:hover{background:#f1f1f1;color:#222}.tool:active{background:#e8e8e8}.tool[aria-pressed=true]{background:#ededed;color:#171717}.tool:disabled{opacity:.28;cursor:default}.tool:disabled:hover{background:transparent}
     .divider{width:1px;height:16px;background:#e7e7e7;margin:0 5px}.color-dot{width:14px;height:14px;background:var(--ink,#292929);border-radius:4px;box-shadow:inset 0 0 0 1px #00000012}.width-dot{display:block;width:var(--width,3px);height:var(--width,3px);background:currentColor;border-radius:50%}
-    .popover{pointer-events:auto;position:absolute;bottom:50px;right:70px;display:flex;align-items:center;gap:2px;padding:6px;border:1px solid #e4e4e4;border-radius:8px;background:#fff;box-shadow:0 4px 16px #0000000d}.popover button{border:0;background:transparent;width:28px;height:28px;border-radius:5px;display:grid;place-items:center;color:#444;cursor:pointer}.popover button:hover{background:#f1f1f1}.popover button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #aaa}.swatch{width:16px;height:16px;border-radius:4px;background:var(--swatch);box-shadow:inset 0 0 0 1px #00000010}.color-popover{display:grid;grid-template-columns:repeat(8,28px)}.custom-color{grid-column:1/-1;width:100%;height:28px;border:1px solid #e7e7e7;padding:0 8px;margin-top:4px;color:#444;background:#fafafa;border-radius:4px;font-size:12px}.width-popover{right:40px}
+    .popover{pointer-events:auto;position:absolute;bottom:50px;right:70px;display:flex;align-items:center;gap:2px;padding:6px;border:1px solid #e4e4e4;border-radius:8px;background:#fff;box-shadow:0 4px 16px #0000000d}.popover button{border:0;background:transparent;width:28px;height:28px;border-radius:5px;display:grid;place-items:center;color:#444;cursor:pointer}.popover button:hover{background:#f1f1f1}.popover button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #aaa}.swatch{width:16px;height:16px;border-radius:4px;background:var(--swatch);box-shadow:inset 0 0 0 1px #00000010}.color-popover{display:grid;grid-template-columns:repeat(8,28px)}.custom-color{grid-column:1/-1;width:100%;height:28px;border:1px solid #e7e7e7;padding:0 8px;margin-top:4px;color:#444;background:#fafafa;border-radius:4px;font-size:12px}.width-popover,.size-popover{right:40px}.size-glyph{display:block;font:500 13px/1 'Lasting Ink Geist',Geist,system-ui,sans-serif}.size-glyph::before{content:"A"}.size-glyph{text-box:trim-both cap alphabetic}.tool[aria-expanded=true]{background:#ededed;color:#171717}.popover:not(.hidden){animation:ink-pop .14s cubic-bezier(.25,.8,.25,1)}@keyframes ink-pop{from{opacity:0;transform:translateY(-4px)}}
     .hint{pointer-events:none;position:fixed;bottom:79px;left:50%;transform:translateX(-50%);padding:7px 10px;border-radius:6px;background:#252525;color:white;font-size:12px;white-space:nowrap;opacity:0;transition:opacity .15s}.hint.show{opacity:1}
     .notes{position:fixed;inset:0;pointer-events:none}.note{position:absolute;pointer-events:auto;padding:.15em .3em;margin:-.15em -.3em;border-radius:4px;color:#292929;font-size:13px;cursor:grab;touch-action:none}.note:hover,.note:focus-within{box-shadow:0 0 0 1px #0000002e}.note.dragging{cursor:grabbing;box-shadow:0 0 0 1px #00000040}.note textarea{display:block;resize:none;field-sizing:content;min-width:6ch;max-width:28em;min-height:1.45em;padding:0;border:0;outline:none;background:transparent;color:inherit;font:inherit;font-family:'Lasting Ink Geist',Geist,system-ui,sans-serif;line-height:1.45;overflow:hidden;cursor:text}.note-tools{position:absolute;bottom:100%;right:-4px;display:flex;gap:1px;padding:2px 2px 4px;opacity:0;transform:translateY(2px);transition:opacity .12s,transform .12s;pointer-events:none}.note:hover .note-tools,.note:focus-within .note-tools{opacity:1;transform:none;pointer-events:auto}.note-tools>*{display:grid;place-items:center;width:22px;height:22px;padding:4px;border:0;border-radius:5px;background:#fff;color:#777;box-shadow:0 0 0 1px #00000014,0 1px 3px #0000000f}.note-tools>span{cursor:grab}.note-tools button{cursor:pointer}.note-tools button:hover{color:#222}.note-tools svg{width:14px;height:14px}
     .launcher{position:fixed;right:20px;bottom:20px;pointer-events:auto;display:grid;place-items:center;width:36px;height:36px;padding:9px;background:#fff;color:#555;border:1px solid #e4e4e4;border-radius:7px;box-shadow:0 3px 12px #00000008}.launcher:hover{color:#111;background:#fafafa}.launcher svg{width:18px;height:18px}.hidden{display:none!important}.status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
@@ -222,7 +228,7 @@
     :host([data-pdf]) .popover{top:calc(100% + 8px);bottom:auto;right:8px;max-width:calc(100vw - 16px)}
     :host([data-pdf]) .launcher{top:48px;bottom:auto;right:8px;background:#fff}
     :host([data-pdf]) .hint{top:calc(var(--ink-top-inset,92px) + 8px);bottom:auto;max-width:calc(100vw - 24px);white-space:normal}
-    @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+    @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
     </style><svg class="overlay" aria-hidden="true"></svg><div class="capture"></div><div class="notes"></div><div class="hint" role="status"></div><div class="toolbar" role="toolbar" aria-label="Lasting Ink annotation tools"><div class="tools">${[
       ["select", "Select (V)"],
       ["highlight", "Highlight text (H)"],
@@ -239,7 +245,7 @@
       )
       .join(
         "",
-      )}</div><div class="divider"></div><button class="tool color-button" data-action="color" title="Color" aria-label="Ink color" aria-expanded="false"><span class="color-dot"></span></button><button class="tool width-button" data-action="width" title="Stroke size" aria-label="Stroke size" aria-expanded="false"><span class="width-dot"></span></button><div class="popover color-popover hidden" role="group" aria-label="Colors">${palette.map((c) => `<button data-color="${c}" aria-label="Color ${c}" aria-pressed="${c === color}"><span class="swatch" style="--swatch:${c}"></span></button>`).join("")}<input class="custom-color" type="text" value="${color}" maxlength="7" spellcheck="false" title="Hex color" aria-label="Custom hex color"></div><div class="popover width-popover hidden" role="group" aria-label="Stroke sizes">${[2, 3, 5, 8].map((w) => `<button data-width="${w}" aria-label="${w} pixel stroke" aria-pressed="${w === width}"><span class="width-dot" style="--width:${w}px"></span></button>`).join("")}</div><div class="divider"></div><button class="tool" data-action="undo" title="Undo (Cmd/Ctrl+Z)" aria-label="Undo last annotation">${svgIcon("undo")}</button><button class="tool" data-action="redo" title="Redo (Cmd/Ctrl+Shift+Z)" aria-label="Redo annotation">${svgIcon("redo")}</button><button class="tool" data-action="export" title="Export annotations as JSON" aria-label="Export annotations as JSON">${svgIcon("export")}</button><button class="tool" data-action="hide" title="Collapse toolbar" aria-label="Collapse toolbar">${svgIcon("close")}</button></div><button class="launcher hidden" title="Annotate" aria-label="Open annotation tools">${svgIcon("pen")}</button><span class="status" role="status"></span>`;
+      )}</div><div class="divider"></div><button class="tool color-button" data-action="color" title="Color" aria-label="Ink color" aria-expanded="false"><span class="color-dot"></span></button><button class="tool width-button" data-action="width" title="Stroke size" aria-label="Stroke size" aria-expanded="false"><span class="width-dot"></span></button><div class="popover color-popover hidden" role="group" aria-label="Colors">${palette.map((c) => `<button data-color="${c}" aria-label="Color ${c}" aria-pressed="${c === color}"><span class="swatch" style="--swatch:${c}"></span></button>`).join("")}<input class="custom-color" type="text" value="${color}" maxlength="7" spellcheck="false" title="Hex color" aria-label="Custom hex color"></div><button class="tool size-button hidden" data-action="size" title="Text size" aria-label="Text size" aria-expanded="false"><span class="size-glyph" aria-hidden="true"></span></button><div class="popover size-popover hidden" role="group" aria-label="Text sizes">${TEXT_SIZES.map((s, i) => `<button data-text-size="${s}" aria-label="${s} point text" aria-pressed="${s === textSize}"><span class="size-glyph" aria-hidden="true" style="font-size:${10 + i * 3}px"></span></button>`).join("")}</div><div class="popover width-popover hidden" role="group" aria-label="Stroke sizes">${[2, 3, 5, 8].map((w) => `<button data-width="${w}" aria-label="${w} pixel stroke" aria-pressed="${w === width}"><span class="width-dot" style="--width:${w}px"></span></button>`).join("")}</div><div class="divider"></div><button class="tool" data-action="undo" title="Undo (Cmd/Ctrl+Z)" aria-label="Undo last annotation">${svgIcon("undo")}</button><button class="tool" data-action="redo" title="Redo (Cmd/Ctrl+Shift+Z)" aria-label="Redo annotation">${svgIcon("redo")}</button><button class="tool" data-action="export" title="Export annotations as JSON" aria-label="Export annotations as JSON">${svgIcon("export")}</button><button class="tool" data-action="hide" title="Collapse toolbar" aria-label="Collapse toolbar">${svgIcon("close")}</button></div><button class="launcher hidden" title="Annotate" aria-label="Open annotation tools">${svgIcon("pen")}</button><span class="status" role="status"></span>`;
     document.documentElement.append(host);
     let dockShadow;
     if (toolbarMount) {
@@ -435,6 +441,12 @@
     }
     function setMode(next) {
       mode = next;
+      // Picking a tool ends text editing; an untouched box goes away.
+      if (activeNoteId) {
+        const id = activeNoteId;
+        activeNoteId = null;
+        discardIfEmpty(id);
+      }
       capture.className =
         "capture" +
         (["pen", "marker", "note", "box", "arrow", "erase"].includes(mode)
@@ -446,7 +458,9 @@
       );
       color = ["highlight", "marker"].includes(mode)
         ? highlightColor
-        : inkColor;
+        : mode === "note"
+          ? textColor
+          : inkColor;
       if (mode in widths) width = widths[mode];
       syncControls();
       closePopovers();
@@ -670,6 +684,15 @@
         }),
       );
     }
+    function discardIfEmpty(id) {
+      const current = items.get(id);
+      if (!current || current.type !== "note" || current.text?.trim()) return;
+      const last = undo.at(-1);
+      if (last?.id === id && !last.before) {
+        undo.pop();
+        change(id, null, false);
+      } else change(id, null);
+    }
     function drawNote(a) {
       const p = xy(a.point, a.anchor);
       if (!p) return;
@@ -687,14 +710,20 @@
             change(a.id, { ...current, text: e.target.value }, false);
         });
         // Text left empty is discarded; a fresh box leaves no undo step.
+        input.addEventListener("focus", () => {
+          activeNoteId = a.id;
+          color = items.get(a.id)?.color || textColor;
+          syncControls();
+        });
         input.addEventListener("blur", () => {
-          const current = items.get(a.id);
-          if (!current || current.text?.trim()) return;
-          const last = undo.at(-1);
-          if (last?.id === a.id && !last.before) {
-            undo.pop();
-            change(a.id, null, false);
-          } else change(a.id, null);
+          // Focus moving to the toolbar keeps the box as the target.
+          if (pointerInToolbar) {
+            pointerInToolbar = false;
+            return;
+          }
+          if (activeNoteId === a.id) activeNoteId = null;
+          discardIfEmpty(a.id);
+          syncControls();
         });
         node.querySelector("[data-remove]").onclick = () => change(a.id, null);
         // Drag from the grip or the box's edge; a click there edits.
@@ -745,7 +774,7 @@
       node.style.top = p[1] + "px";
       // 10pt on the page, so text keeps its size relative to the document.
       const scale = pdf && surface(a.anchor?.surface)?.scale?.();
-      node.style.fontSize = scale ? 10 * scale + "px" : "";
+      node.style.fontSize = (a.size || 10) * (scale || 4 / 3) + "px";
       node.style.color = a.color || "";
       const input = node.querySelector("textarea");
       if (shadow.activeElement !== input && input.value !== a.text)
@@ -887,7 +916,14 @@
       const anchor = anchorAt(e.clientX, e.clientY, s),
         p = point(e.clientX, e.clientY, anchor);
       if (mode === "note") {
-        const item = add({ type: "note", anchor, point: p, text: "", color });
+        const item = add({
+          type: "note",
+          anchor,
+          point: p,
+          text: "",
+          color: textColor,
+          size: textSize,
+        });
         setMode("select");
         requestAnimationFrame(() =>
           notes.querySelector(`[data-id="${item.id}"] textarea`)?.focus(),
@@ -977,7 +1013,7 @@
           return;
         }
         const action = e.target.closest("[data-action]")?.dataset.action;
-        if (["color", "width", "more"].includes(action)) {
+        if (["color", "width", "size", "more"].includes(action)) {
           const pop = $("." + action + "-popover"),
             wasHidden = pop.classList.contains("hidden");
           closePopovers();
@@ -990,6 +1026,17 @@
         if (swatch) {
           setColor(swatch.dataset.color);
           closePopovers();
+          refocusText();
+          return;
+        }
+        const textSizeButton = e.target.closest("[data-text-size]");
+        if (textSizeButton) {
+          textSize = Number(textSizeButton.dataset.textSize);
+          const item = items.get(activeNoteId);
+          if (item) change(item.id, { ...item, size: textSize });
+          syncControls();
+          closePopovers();
+          refocusText();
           return;
         }
         const size = e.target.closest("[data-width]");
@@ -1064,6 +1111,17 @@
       );
     }
     function syncControls() {
+      const textMode = mode === "note" || items.has(activeNoteId);
+      all(".width-button").forEach((b) =>
+        b.classList.toggle("hidden", textMode),
+      );
+      all(".size-button").forEach((b) =>
+        b.classList.toggle("hidden", !textMode),
+      );
+      const current = items.get(activeNoteId)?.size || textSize;
+      all("[data-text-size]").forEach((b) =>
+        b.setAttribute("aria-pressed", Number(b.dataset.textSize) === current),
+      );
       $(".color-dot").style.setProperty("--ink", color);
       $(".width-button .width-dot").style.setProperty("--width", width + "px");
       all("[data-color]").forEach((b) =>
@@ -1076,10 +1134,40 @@
     }
     function setColor(value) {
       color = value;
+      const item = items.get(activeNoteId);
       if (["highlight", "marker"].includes(mode)) highlightColor = value;
+      else if (mode === "note" || item) textColor = value;
       else inkColor = value;
+      if (item) change(item.id, { ...item, color: value });
       syncControls();
     }
+    function refocusText() {
+      const input = notes.querySelector(`[data-id="${activeNoteId}"] textarea`);
+      if (input) requestAnimationFrame(() => input.focus());
+    }
+    // A text box stays the target of the colour and size controls until
+    // something outside it and the toolbar is clicked.
+    document.addEventListener(
+      "pointerdown",
+      (e) => {
+        pointerInToolbar = e
+          .composedPath()
+          .some((n) => n.classList?.contains("toolbar"));
+        if (!activeNoteId) return;
+        const keep = e
+          .composedPath()
+          .some(
+            (n) =>
+              n.classList?.contains("note") || n.classList?.contains("toolbar"),
+          );
+        if (keep) return;
+        const id = activeNoteId;
+        activeNoteId = null;
+        discardIfEmpty(id);
+        syncControls();
+      },
+      true,
+    );
     $(".launcher").onclick = toggle;
     $(".custom-color").oninput = (e) => {
       if (/^#[0-9a-f]{6}$/i.test(e.target.value)) setColor(e.target.value);

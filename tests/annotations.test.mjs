@@ -287,6 +287,51 @@ test("the text tool writes straight onto the page: no card, no placeholder, empt
     p.close();
   }
 });
+test("text has its own size and colour, set from the toolbar while editing", async () => {
+  const p = await page({ pdf: true });
+  const hidden = (sel) =>
+    p.root.querySelector(sel).classList.contains("hidden");
+  // A real toolbar click: pointerdown on the toolbar, the box blurs, then click.
+  const toolbarClick = (sel) => {
+    const button = p.root.querySelector(sel);
+    button.dispatchEvent(
+      new p.w.MouseEvent("pointerdown", { bubbles: true, composed: true }),
+    );
+    p.root
+      .querySelector(".note textarea")
+      ?.dispatchEvent(new p.w.FocusEvent("blur"));
+    button.click();
+  };
+  try {
+    assert.equal(hidden(".size-button"), true);
+    p.click('[data-mode="note"]');
+    assert.equal(hidden(".size-button"), false);
+    assert.equal(hidden(".width-button"), true);
+    p.pointer("pointerdown", 450, 250);
+    await tick();
+    p.root.querySelector(".note textarea").focus();
+    assert.equal(p.api.list()[0].size, 8);
+    assert.equal(p.api.list()[0].color, "#292929");
+
+    toolbarClick('[data-action="size"]');
+    toolbarClick('[data-text-size="15"]');
+    toolbarClick('[data-action="color"]');
+    toolbarClick('[data-color="#d35e65"]');
+    await tick();
+    assert.equal(p.api.list().length, 1, "empty box survives toolbar use");
+    assert.equal(p.api.list()[0].size, 15);
+    assert.equal(p.api.list()[0].color, "#d35e65");
+
+    p.click('[data-mode="pen"]');
+    assert.equal(hidden(".width-button"), false);
+    assert.equal(
+      p.root.querySelector(".color-dot").style.getPropertyValue("--ink"),
+      "#292929",
+    );
+  } finally {
+    p.close();
+  }
+});
 test("notes preserve edited text through undo/redo; controls have no save count", async () => {
   const p = await page();
   p.click('[data-mode="note"]');
@@ -378,10 +423,10 @@ test("Cmd/Ctrl undo and redo work on webpages and PDFs without taking text-edito
       p.click('[data-mode="note"]');
       p.pointer("pointerdown", 450, 250);
       await tick();
-      assert.equal(
-        key(p.root.querySelector("textarea"), { key: "z", metaKey: true }),
-        false,
-      );
+      const text = p.root.querySelector("textarea");
+      text.value = "x";
+      text.dispatchEvent(new p.w.Event("input", { bubbles: true }));
+      assert.equal(key(text, { key: "z", metaKey: true }), false);
       assert.equal(Object.keys(p.store).length, 2);
       p.click('[data-action="hide"]');
       assert.equal(key(p.w.document, { key: "z", metaKey: true }), false);

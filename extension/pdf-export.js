@@ -74,19 +74,20 @@ export async function exportPdf({ bytes, annotations, pageInfos, rasterize }) {
       }
     } else if (item.type === "note") {
       const [x, y] = convert(item.point);
-      // Text tool: write onto the page at 10pt like the viewer shows it.
+      // Text tool: write onto the page at the size the viewer shows.
       helvetica ??= await document.embedFont(StandardFonts.Helvetica);
       const text = item.text || "";
       if (!text.trim()) continue;
+      const size = item.size || 10;
       if (fitsFont(helvetica, text)) {
         page.drawText(text, {
           x,
-          y: y - 10,
-          size: 10,
+          y: y - size,
+          size,
           font: helvetica,
           color: ink,
-          lineHeight: 14.5,
-          maxWidth: 280,
+          lineHeight: size * 1.45,
+          maxWidth: size * 28,
         });
         continue;
       }
