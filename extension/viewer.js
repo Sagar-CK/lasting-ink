@@ -641,9 +641,11 @@ function openSidebar(panel = sidebarPanel) {
     $("#" + tab.dataset.panel).hidden = !selected;
   }
   setSidebar(true);
-  if (panel === "thumbnails") revealThumb(thumbs.get(viewer.currentPageNumber));
+  if (panel === "thumbnails")
+    revealThumb(thumbs.get(viewer.currentPageNumber), true);
 }
-$("#sidebar-toggle").onclick = () => setSidebar(!sidebarOpen());
+$("#sidebar-toggle").onclick = () =>
+  sidebarOpen() ? setSidebar(false) : openSidebar();
 const sidebarTabs = [...document.querySelectorAll("[data-panel]")];
 for (const button of sidebarTabs) {
   button.onclick = () => openSidebar(button.dataset.panel);
@@ -659,13 +661,16 @@ for (const button of sidebarTabs) {
 }
 // Scroll only the thumbnail list. scrollIntoView would also scroll the
 // sidebar and page behind it, pushing the tab rail out of view.
-function revealThumb(button) {
+function revealThumb(button, center = false) {
   const list = $("#thumbnails");
   if (!button || list.hidden) return;
   const box = list.getBoundingClientRect(),
     item = button.getBoundingClientRect(),
     gap = 8;
-  if (item.top < box.top + gap) list.scrollTop += item.top - box.top - gap;
+  // On open, centre the current page; while reading, move only as needed.
+  if (center)
+    list.scrollTop += item.top + item.height / 2 - (box.top + box.height / 2);
+  else if (item.top < box.top + gap) list.scrollTop += item.top - box.top - gap;
   else if (item.bottom > box.bottom - gap)
     list.scrollTop += item.bottom - box.bottom + gap;
 }
