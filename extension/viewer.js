@@ -894,12 +894,7 @@ function updateNotes() {
     .list()
     .filter((a) => (a.text || a.quote || a.type).toLowerCase().includes(query));
   if (!list.length) {
-    empty(
-      root,
-      query
-        ? "No matching annotations."
-        : "Your notes and highlights will appear here.",
-    );
+    if (query) empty(root, "No matching annotations.");
     return;
   }
   for (const a of list) {
