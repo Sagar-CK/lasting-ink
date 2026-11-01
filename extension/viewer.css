@@ -18,6 +18,12 @@
   --ink-icon: #e8eaed;
   --ink-canvas: #282828;
   --ink-shadow: 0 4px 18px #0005;
+  --ink-accent: #8ab4f8;
+  /* Two curves: things arriving settle in, things already on screen travel. */
+  --ink-arrive: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --ink-travel: cubic-bezier(0.45, 0, 0.1, 1);
+  --sidebar-ms: 280ms;
+  --sidebar-width: 292px;
   color-scheme: dark;
 }
 * {
@@ -57,6 +63,9 @@ button,
   color: var(--ink-icon);
   cursor: pointer;
   text-decoration: none;
+  transition:
+    background-color 120ms,
+    color 120ms;
 }
 button:hover,
 .button:hover {
@@ -259,7 +268,10 @@ header button {
 }
 #find-query {
   max-width: 300px;
-
+}
+#find-query,
+#sidebar input:not([type="range"]),
+dialog input:not([type="checkbox"]) {
   background: var(--ink-input);
 }
 #find-count {
@@ -284,6 +296,7 @@ header button {
   background: var(--ink-canvas);
   outline: none;
   scrollbar-color: #6f7071 var(--ink-canvas);
+  transition: left var(--sidebar-ms) var(--ink-travel);
 }
 #pages {
   padding: 28px;
@@ -317,106 +330,223 @@ header button {
   background: #a1adb875;
 }
 body.sidebar-open #viewport {
-  left: 256px;
+  left: var(--sidebar-width);
+  transition-timing-function: var(--ink-arrive);
 }
 #sidebar {
   position: fixed;
   left: 0;
   top: var(--pdf-top-inset, 52px);
   bottom: 0;
-  width: 256px;
-  border-right: 1px solid var(--ink-border);
-
-  background: var(--ink-sidebar);
   z-index: 3;
-  overflow: auto;
-  padding: 0 12px 16px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  /* One row the height of the sidebar, so only the panel list scrolls. */
+  grid-template-rows: minmax(0, 1fr);
+  width: var(--sidebar-width);
+  overflow: clip;
+  border-right: 1px solid var(--ink-border);
+  background: var(--ink-sidebar);
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition:
+    transform var(--sidebar-ms) var(--ink-travel),
+    visibility 0s linear var(--sidebar-ms);
+}
+body.sidebar-open #sidebar {
+  transform: none;
+  visibility: visible;
+  transition: transform var(--sidebar-ms) var(--ink-arrive);
 }
 #sidebar-tabs {
   display: flex;
-  gap: 0;
-  position: sticky;
-  top: 0;
-
-  background: var(--ink-sidebar);
-  padding: 8px 0 0;
-  margin-bottom: 8px;
-  border-bottom: 1px solid var(--ink-border);
-  z-index: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+  border-right: 1px solid #ffffff12;
 }
 #sidebar-tabs button {
-  flex: 1;
-  padding: 8px 4px 10px;
-  border-radius: 0;
-  border-bottom: 1px solid transparent;
-  font-size: 11px;
-
-  color: var(--ink-muted);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: #9aa0a6;
+}
+#sidebar-tabs button svg {
+  width: 20px;
+  height: 20px;
 }
 #sidebar-tabs button:hover {
-  background: transparent;
-
   color: var(--ink-text);
 }
-#sidebar-tabs [aria-selected="true"] {
-  border-bottom-color: #ddd;
-
-  color: var(--ink-text);
+#sidebar-tabs [aria-selected="true"],
+#sidebar-tabs [aria-selected="true"]:hover {
+  background: #ffffff1f;
+  color: #fff;
 }
-#sidebar section {
-  padding-top: 8px;
+#sidebar-panels {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
 }
-.thumbnail {
+#sidebar [role="tabpanel"] {
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 8px 8px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: #5a5b5c transparent;
+  animation: panel-in 200ms var(--ink-arrive);
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+#outline hr {
+  margin: 8px;
+  border: 0;
+  border-top: 1px solid #ffffff14;
+}
+/* Page thumbnails */
+#thumbnails {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 0 auto 12px;
-  padding: 12px;
+  gap: 4px;
+}
+.thumbnail {
+  flex-direction: column;
+  gap: 8px;
   width: 100%;
-  min-height: 180px;
-
+  padding: 12px 8px 8px;
+  border-radius: 10px;
   color: var(--ink-muted);
   font-size: 11px;
+  font-variant-numeric: tabular-nums;
 }
-.thumbnail canvas {
-  max-width: 160px;
-  height: auto;
+.thumbnail:hover {
+  background: #ffffff0a;
+}
+.thumb-frame {
+  display: block;
+  max-width: 100%;
+  border-radius: 2px;
+  background: #3a3b3c;
+  box-shadow: 0 1px 3px #0006;
+  transition: box-shadow 150ms;
+}
+.thumb-frame.loaded {
   background: #fff;
-  box-shadow: 0 0 0 1px #e4e4e4;
+}
+.thumb-frame canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  animation: fade-in 200ms ease-out;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
 }
 .thumbnail[aria-current="page"] {
-  background: #414345;
-
+  background: #ffffff10;
   color: var(--ink-text);
 }
-.thumbnail[aria-current="page"] canvas {
-  box-shadow: 0 0 0 1px #929292;
+.thumbnail[aria-current="page"] .thumb-frame {
+  box-shadow: 0 0 0 2px var(--ink-accent);
 }
-.outline-item {
-  justify-content: start;
-  text-align: left;
-  width: 100%;
-  padding: 8px;
-  min-height: 32px;
-  height: auto;
-  line-height: 1.5;
-}
+/* Outline and bookmarks */
+.outline-row,
 .bookmark-row {
   display: flex;
-  align-items: center;
+  align-items: start;
+  border-radius: var(--ink-radius);
+}
+.outline-row:hover,
+.bookmark-row:hover {
+  background: #ffffff0a;
+}
+.outline-item {
+  flex: 1;
+  min-width: 0;
+  min-height: 30px;
+  height: auto;
+  justify-content: start;
+  padding: 6px 8px 6px 2px;
+  color: var(--ink-text);
+  line-height: 1.45;
+  text-align: left;
+}
+.outline-item:hover,
+.outline-toggle:hover {
+  background: transparent;
+}
+.outline-children .outline-item {
+  color: var(--ink-muted);
+}
+.outline-children .outline-item:hover {
+  color: var(--ink-text);
+}
+.outline-toggle,
+.outline-spacer {
+  flex: 0 0 22px;
+  width: 22px;
+  min-height: 30px;
+}
+.outline-toggle {
+  border-radius: var(--ink-radius);
+  color: var(--ink-muted);
+}
+.outline-toggle svg {
+  width: 14px;
+  height: 14px;
+  transform: rotate(-90deg);
+  transition: transform 220ms var(--ink-travel);
+}
+.outline-node.open > .outline-row .outline-toggle svg {
+  transform: none;
+}
+.outline-children {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-left: 10px;
+  padding-left: 4px;
+  border-left: 1px solid #ffffff14;
+  opacity: 0;
+  transition:
+    opacity 100ms linear,
+    grid-template-rows 220ms var(--ink-travel) 60ms;
+}
+.outline-node.open > .outline-children {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 240ms var(--ink-arrive),
+    opacity 160ms linear 110ms;
+}
+.outline-children > div {
+  min-height: 0;
+  overflow: hidden;
 }
 .bookmark-row .outline-item {
   gap: 8px;
+  padding-left: 8px;
 }
 .bookmark-row .outline-item svg {
   width: 14px;
   height: 14px;
-  color: #999;
+  margin-top: 2px;
+  color: var(--ink-muted);
 }
 .bookmark-row .remove-bookmark {
   width: 28px;
   min-height: 28px;
+  margin: 1px;
   opacity: 0;
+  transition: opacity 120ms;
 }
 .bookmark-row:hover .remove-bookmark,
 .bookmark-row:focus-within .remove-bookmark {
@@ -426,75 +556,81 @@ body.sidebar-open #viewport {
   width: 14px;
   height: 14px;
 }
-.outline-children {
-  padding-left: 12px;
-
-  border-left: 1px solid var(--ink-border);
-  margin-left: 8px;
-}
 .empty {
+  margin: 0;
+  padding: 8px;
   color: var(--ink-muted);
-  padding: 16px 8px;
   font-size: 12px;
-  line-height: 1.65;
+  line-height: 1.6;
 }
-.note-card {
+/* Notes */
+#note-filter {
+  margin: 0 0 8px;
+}
+#note-list {
   display: flex;
   flex-direction: column;
+  gap: 2px;
+}
+.note-card {
+  flex-direction: column;
   align-items: start;
-  gap: 6px;
-  padding: 12px 8px;
-  margin: 0;
+  gap: 4px;
   width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--ink-text);
+  line-height: 1.5;
   text-align: left;
-  border-radius: 4px;
-
-  border-bottom: 1px solid var(--ink-border);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  line-height: 1.5;
 }
 .note-card small {
   color: var(--ink-muted);
-  font-size: 10px;
+  font-size: 11px;
 }
 .note-card[aria-pressed="true"] {
-  background: var(--ink-selected);
+  background: #ffffff17;
 }
 #annotation-editor {
-  padding: 14px 4px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  border-bottom: 1px solid var(--ink-border);
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #ffffff0a;
 }
 #annotation-editor label {
   display: flex;
   align-items: center;
   gap: 8px;
-
   color: var(--ink-muted);
 }
 #annotation-color {
-  width: 80px;
+  width: 84px;
   font-size: 11px;
 }
 #delete-annotation {
-  padding: 0 8px;
+  padding: 0 10px;
+  min-height: 28px;
+  color: #f28b82;
   font-size: 11px;
 }
+/* Files */
 .attachment {
-  width: 100%;
   justify-content: start;
-  gap: 8px;
+  gap: 10px;
+  width: 100%;
   padding: 8px;
   overflow-wrap: anywhere;
   text-align: left;
 }
 .attachment svg {
-  color: #8b8b8b;
   width: 16px;
   height: 16px;
+  color: var(--ink-muted);
 }
 .menu {
   position: fixed;
@@ -511,6 +647,24 @@ body.sidebar-open #viewport {
   border-radius: 8px;
   padding: 5px;
   z-index: 2147483647;
+  transform-origin: top right;
+  animation: menu-in 160ms var(--ink-arrive);
+}
+.menu.closing {
+  pointer-events: none;
+  animation: menu-out 110ms linear forwards;
+}
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+@keyframes menu-out {
+  to {
+    opacity: 0;
+    transform: translateY(-2px) scale(0.99);
+  }
 }
 .menu button,
 .menu label {
@@ -551,13 +705,6 @@ body.sidebar-open #viewport {
   border: 0;
   border-top: 1px solid var(--ink-border);
   margin: 5px 3px;
-}
-.menu .section-label {
-  display: block;
-  padding: 8px 8px 4px;
-
-  color: var(--ink-muted);
-  font-size: 10px;
 }
 #sync-status {
   display: block;
@@ -799,7 +946,7 @@ dialog button:last-child:hover {
   }
   #sidebar {
     z-index: 8;
-    box-shadow: 2px 0 10px #00000008;
+    box-shadow: 4px 0 24px #0006;
   }
   #findbar {
     flex-wrap: wrap;
@@ -811,6 +958,7 @@ dialog button:last-child:hover {
 }
 @media (prefers-reduced-motion: reduce) {
   * {
+    animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
   }

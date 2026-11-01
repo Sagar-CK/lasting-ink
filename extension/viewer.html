@@ -119,7 +119,6 @@
       </div>
     </header>
     <div id="document-menu" class="menu" hidden>
-      <span class="section-label">Document</span>
       <button id="save-annotated" data-menu-icon="download">
         Download with annotations
       </button>
@@ -131,13 +130,11 @@
         Bookmark this page
       </button>
       <hr />
-      <span class="section-label">View</span>
       <button id="rotate" data-menu-icon="rotate">Rotate clockwise</button>
       <label><input id="two-page" type="checkbox" /> Two-page view</label>
       <button id="present" data-menu-icon="present">Presentation mode</button>
       <button id="ocr" data-menu-icon="ocr">Recognize scanned text…</button>
       <hr />
-      <span class="section-label">Files &amp; backup</span>
       <button id="open-local" data-menu-icon="folder">Open a local PDF…</button>
       <button id="backup" data-menu-icon="download">
         Export annotation backup
@@ -153,63 +150,98 @@
       <button id="sync-now" data-menu-icon="sync">Sync now</button>
       <span id="sync-status" role="status"></span>
     </div>
-    <aside id="sidebar" hidden aria-label="Document navigation">
-      <div id="sidebar-tabs" role="tablist" aria-label="Sidebar sections">
-        <button role="tab" data-panel="thumbnails" aria-selected="true">
-          Pages
-        </button>
-        <button role="tab" data-panel="outline" aria-selected="false">
-          Outline
-        </button>
-        <button role="tab" data-panel="notes" aria-selected="false">
-          Notes
-        </button>
-        <button role="tab" data-panel="attachments" aria-selected="false">
-          Files
-        </button>
+    <aside id="sidebar" aria-label="Document navigation">
+      <div
+        id="sidebar-tabs"
+        role="tablist"
+        aria-label="Sidebar sections"
+        aria-orientation="vertical"
+      >
+        <button
+          role="tab"
+          data-panel="thumbnails"
+          data-icon="pages"
+          title="Pages"
+          aria-label="Pages"
+          aria-selected="true"
+        ></button>
+        <button
+          role="tab"
+          data-panel="outline"
+          data-icon="outline"
+          title="Outline"
+          aria-label="Outline"
+          aria-selected="false"
+          tabindex="-1"
+        ></button>
+        <button
+          role="tab"
+          data-panel="notes"
+          data-icon="note"
+          title="Notes"
+          aria-label="Notes"
+          aria-selected="false"
+          tabindex="-1"
+        ></button>
+        <button
+          role="tab"
+          data-panel="attachments"
+          data-icon="attachment"
+          title="Files"
+          aria-label="Files"
+          aria-selected="false"
+          tabindex="-1"
+        ></button>
       </div>
-      <section
-        id="thumbnails"
-        role="tabpanel"
-        aria-label="Page thumbnails"
-      ></section>
-      <section
-        id="outline"
-        role="tabpanel"
-        aria-label="Document outline"
-        hidden
-      ></section>
-      <section id="notes" role="tabpanel" aria-label="Annotations" hidden>
-        <input
-          id="note-filter"
-          type="search"
-          placeholder="Find a note or highlight…"
-          aria-label="Search annotations"
-        />
-        <div id="annotation-editor" hidden>
-          <label
-            >Color
-            <input
-              id="annotation-color"
-              type="text"
-              maxlength="7"
-              spellcheck="false"
-              aria-label="Annotation hex color"
-          /></label>
-          <label
-            >Width
-            <input id="annotation-width" type="range" min="1" max="16" step="1"
-          /></label>
-          <button id="delete-annotation">Delete annotation</button>
-        </div>
-        <div id="note-list"></div>
-      </section>
-      <section
-        id="attachments"
-        role="tabpanel"
-        aria-label="Embedded files"
-        hidden
-      ></section>
+      <div id="sidebar-panels">
+        <section
+          id="thumbnails"
+          role="tabpanel"
+          aria-label="Page thumbnails"
+        ></section>
+        <section
+          id="outline"
+          role="tabpanel"
+          aria-label="Document outline"
+          hidden
+        ></section>
+        <section id="notes" role="tabpanel" aria-label="Annotations" hidden>
+          <input
+            id="note-filter"
+            type="search"
+            placeholder="Search"
+            aria-label="Search annotations"
+          />
+          <div id="annotation-editor" hidden>
+            <label
+              >Color
+              <input
+                id="annotation-color"
+                type="text"
+                maxlength="7"
+                spellcheck="false"
+                aria-label="Annotation hex color"
+            /></label>
+            <label
+              >Width
+              <input
+                id="annotation-width"
+                type="range"
+                min="1"
+                max="16"
+                step="1"
+            /></label>
+            <button id="delete-annotation">Delete annotation</button>
+          </div>
+          <div id="note-list"></div>
+        </section>
+        <section
+          id="attachments"
+          role="tabpanel"
+          aria-label="Embedded files"
+          hidden
+        ></section>
+      </div>
     </aside>
     <div id="viewport" role="main" tabindex="0" aria-label="PDF document">
       <div id="pages" class="pdfViewer"></div>

@@ -79,6 +79,7 @@ let lastLocation,
   baseViewports = new Map(),
   ocrPages = new Map(),
   thumbs = new Map(),
+  activeThumb,
   thumbObserver;
 let presentationState,
   findQuery = "",
@@ -90,9 +91,22 @@ function status(text, persistent = false) {
   if (!persistent)
     statusTimer = setTimeout(() => ($("#status").textContent = ""), 4000);
 }
+let menuTimer;
 function menu(show = false) {
-  $("#document-menu").hidden = !show;
+  const el = $("#document-menu");
+  clearTimeout(menuTimer);
   $("#menu-toggle").setAttribute("aria-expanded", String(show));
+  if (show) {
+    el.classList.remove("closing");
+    el.hidden = false;
+  } else if (!el.hidden && !el.classList.contains("closing")) {
+    // Let the exit play before the menu leaves the layout.
+    el.classList.add("closing");
+    menuTimer = setTimeout(() => {
+      el.hidden = true;
+      el.classList.remove("closing");
+    }, 110);
+  }
 }
 function syncControls() {
   if (!pdf) return;
@@ -114,6 +128,11 @@ function syncControls() {
       "aria-current",
       n === viewer.currentPageNumber ? "page" : "false",
     );
+  const current = thumbs.get(viewer.currentPageNumber);
+  if (current && current !== activeThumb) {
+    activeThumb = current;
+    if (sidebarOpen() && sidebarPanel === "thumbnails") revealThumb(current);
+  }
 }
 function goTo(n) {
   if (pdf) viewer.currentPageNumber = Math.max(1, Math.min(pdf.numPages, n));
@@ -392,7 +411,7 @@ function measureHeader() {
   ink?.refresh();
 }
 new ResizeObserver(measureHeader).observe($("header"));
-new ResizeObserver(() => {
+function refit() {
   if (pdf) {
     const scale = viewer.currentScaleValue;
     if (["auto", "page-width", "page-fit"].includes(scale))
@@ -400,6 +419,9 @@ new ResizeObserver(() => {
     viewer.update();
     ink?.refresh();
   }
+}
+new ResizeObserver(() => {
+  if (!document.body.classList.contains("sidebar-moving")) refit();
 }).observe(viewport);
 for (const event of [
   "pagechanging",
@@ -587,33 +609,85 @@ bus.on("updatefindcontrolstate", ({ state, matchesCount }) => {
         ? "Searching…"
         : `${matchesCount?.current || 0} / ${matchesCount?.total || 0}`;
 });
+const SIDEBAR_MS = 280;
+let sidebarTimer;
+function sidebarOpen() {
+  return document.body.classList.contains("sidebar-open");
+}
+function setSidebar(open) {
+  if (open === sidebarOpen()) return;
+  const animate = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  clearTimeout(sidebarTimer);
+  if (animate) document.body.classList.add("sidebar-moving");
+  document.body.classList.toggle("sidebar-open", open);
+  $("#sidebar-toggle").setAttribute("aria-expanded", String(open));
+  const label = open ? "Hide sidebar" : "Show sidebar";
+  $("#sidebar-toggle").title = label;
+  $("#sidebar-toggle").setAttribute("aria-label", label);
+  sidebarTimer = setTimeout(
+    () => {
+      document.body.classList.remove("sidebar-moving");
+      refit();
+    },
+    animate ? SIDEBAR_MS : 0,
+  );
+}
 function openSidebar(panel = sidebarPanel) {
   sidebarPanel = panel;
-  $("#sidebar").hidden = false;
-  document.body.classList.add("sidebar-open");
-  $("#sidebar-toggle").setAttribute("aria-expanded", "true");
   for (const tab of document.querySelectorAll("[data-panel]")) {
     const selected = tab.dataset.panel === panel;
     tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
     $("#" + tab.dataset.panel).hidden = !selected;
   }
-  viewer.update();
-  ink?.refresh();
+  setSidebar(true);
+  if (panel === "thumbnails") revealThumb(thumbs.get(viewer.currentPageNumber));
 }
-$("#sidebar-toggle").onclick = () => {
-  if ($("#sidebar").hidden) openSidebar();
-  else {
-    $("#sidebar").hidden = true;
-    document.body.classList.remove("sidebar-open");
-    $("#sidebar-toggle").setAttribute("aria-expanded", "false");
-    viewer.update();
-  }
-};
-for (const button of document.querySelectorAll("[data-panel]"))
+$("#sidebar-toggle").onclick = () => setSidebar(!sidebarOpen());
+const sidebarTabs = [...document.querySelectorAll("[data-panel]")];
+for (const button of sidebarTabs) {
   button.onclick = () => openSidebar(button.dataset.panel);
+  button.onkeydown = (e) => {
+    const step = { ArrowDown: 1, ArrowUp: -1 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    const n = sidebarTabs.length,
+      next = sidebarTabs[(sidebarTabs.indexOf(button) + step + n) % n];
+    next.focus();
+    openSidebar(next.dataset.panel);
+  };
+}
+// Scroll only the thumbnail list. scrollIntoView would also scroll the
+// sidebar and page behind it, pushing the tab rail out of view.
+function revealThumb(button) {
+  const list = $("#thumbnails");
+  if (!button || list.hidden) return;
+  const box = list.getBoundingClientRect(),
+    item = button.getBoundingClientRect(),
+    gap = 8;
+  if (item.top < box.top + gap) list.scrollTop += item.top - box.top - gap;
+  else if (item.bottom > box.bottom - gap)
+    list.scrollTop += item.bottom - box.bottom + gap;
+}
+// Fit each thumbnail inside one box so portrait and landscape pages match.
+const THUMB_BOX = { width: 176, height: 220 };
+function thumbSize(page) {
+  const base = page.getViewport({ scale: 1 }),
+    scale = Math.min(
+      THUMB_BOX.width / base.width,
+      THUMB_BOX.height / base.height,
+    );
+  return {
+    scale,
+    width: Math.round(base.width * scale),
+    height: Math.round(base.height * scale),
+  };
+}
 async function initThumbnails() {
+  const guess = thumbSize(await pdf.getPage(1));
   $("#thumbnails").replaceChildren();
   thumbs.clear();
+  activeThumb = null;
   thumbObserver?.disconnect();
   thumbObserver = new IntersectionObserver(
     async (entries) => {
@@ -622,34 +696,49 @@ async function initThumbnails() {
         thumbObserver.unobserve(e.target);
         try {
           const page = await pdf.getPage(Number(e.target.dataset.page)),
-            v = page.getViewport({ scale: 0.22 });
+            size = thumbSize(page),
+            v = page.getViewport({
+              scale: size.scale * Math.min(devicePixelRatio || 1, 3),
+            });
           const canvas = document.createElement("canvas");
-          canvas.width = v.width;
-          canvas.height = v.height;
+          canvas.width = Math.ceil(v.width);
+          canvas.height = Math.ceil(v.height);
           await page.render({
             canvasContext: canvas.getContext("2d"),
             viewport: v,
             annotationMode: pdfjs.AnnotationMode.ENABLE,
           }).promise;
-          e.target.prepend(canvas);
+          const frame = e.target.querySelector(".thumb-frame");
+          frame.style.width = size.width + "px";
+          frame.style.height = size.height + "px";
+          frame.append(canvas);
+          frame.classList.add("loaded");
         } catch (error) {
           console.warn("Thumbnail:", error);
         }
       }
     },
-    { root: $("#sidebar"), rootMargin: "200px" },
+    { root: $("#thumbnails"), rootMargin: "400px 0px" },
   );
   for (let n = 1; n <= pdf.numPages; n++) {
-    const button = document.createElement("button");
+    const button = document.createElement("button"),
+      frame = document.createElement("span"),
+      label = document.createElement("span");
     button.className = "thumbnail";
     button.dataset.page = n;
-    button.textContent = "Page " + n;
+    frame.className = "thumb-frame";
+    frame.style.width = guess.width + "px";
+    frame.style.height = guess.height + "px";
+    label.className = "thumb-label";
+    label.textContent = n;
+    button.append(frame, label);
     button.setAttribute("aria-label", "Go to page " + n);
     button.onclick = () => goTo(n);
     $("#thumbnails").append(button);
     thumbs.set(n, button);
     thumbObserver.observe(button);
   }
+  syncControls();
 }
 function empty(container, text) {
   const p = document.createElement("p");
@@ -701,17 +790,24 @@ async function loadOutline() {
     row.append(button, remove);
     root.append(row);
   }
-  if (!outline?.length && !bookmarks.some((b) => !b.removed)) {
+  const hasBookmarks = bookmarks.some((b) => !b.removed);
+  if (!outline?.length && !hasBookmarks) {
     empty(
       root,
       "No outline or bookmarks. Use Document options to bookmark a page.",
     );
     return;
   }
+  if (!outline?.length) return;
+  // Bookmarks carry their own icon; a rule is enough to set them apart.
+  if (hasBookmarks) root.append(document.createElement("hr"));
   function add(items, parent) {
     for (const entry of items) {
-      const wrap = document.createElement("div"),
+      const node = document.createElement("div"),
+        row = document.createElement("div"),
         button = document.createElement("button");
+      node.className = "outline-node";
+      row.className = "outline-row";
       button.className = "outline-item";
       button.textContent = entry.title;
       button.onclick = () =>
@@ -720,14 +816,36 @@ async function loadOutline() {
             ? window.open(entry.url, "_blank", "noopener,noreferrer")
             : null
           : links.goToDestination(entry.dest);
-      wrap.append(button);
-      parent.append(wrap);
-      if (entry.items?.length) {
-        const group = document.createElement("div");
-        group.className = "outline-children";
-        wrap.append(group);
-        add(entry.items, group);
+      node.append(row);
+      parent.append(node);
+      if (!entry.items?.length) {
+        const spacer = document.createElement("span");
+        spacer.className = "outline-spacer";
+        row.append(spacer, button);
+        continue;
       }
+      const toggle = document.createElement("button"),
+        group = document.createElement("div"),
+        inner = document.createElement("div");
+      toggle.className = "outline-toggle";
+      toggle.innerHTML = viewerIcons.next;
+      group.className = "outline-children";
+      group.append(inner);
+      const setOpen = (open) => {
+        node.classList.toggle("open", open);
+        toggle.setAttribute("aria-expanded", String(open));
+        toggle.setAttribute(
+          "aria-label",
+          (open ? "Collapse " : "Expand ") + entry.title,
+        );
+        group.inert = !open;
+      };
+      // PDFs mark sections that should start open with a positive count.
+      setOpen(entry.count > 0);
+      toggle.onclick = () => setOpen(!node.classList.contains("open"));
+      row.append(toggle, button);
+      node.append(group);
+      add(entry.items, inner);
     }
   }
   add(outline, root);
@@ -826,7 +944,11 @@ $("#delete-annotation").onclick = () => {
   ink.remove(ink.selected());
   updateNotes();
 };
-$("#menu-toggle").onclick = () => menu($("#document-menu").hidden);
+$("#menu-toggle").onclick = () =>
+  menu(
+    $("#document-menu").hidden ||
+      $("#document-menu").classList.contains("closing"),
+  );
 document.addEventListener("pointerdown", (e) => {
   if (
     !e.composedPath().includes($("#document-menu")) &&
