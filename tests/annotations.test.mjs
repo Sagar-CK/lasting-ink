@@ -230,6 +230,50 @@ test("text highlights re-anchor after inserted content, including element select
   assert.equal(p.root.querySelectorAll(".overlay rect").length, 1);
   p.close();
 });
+test("notes are a bare text field: no header or placeholder, empty ones vanish, minimized ones reopen", async () => {
+  const p = await page();
+  const newNote = async (x) => {
+    p.click('[data-mode="note"]');
+    p.pointer("pointerdown", x, 250);
+    await tick();
+    return p.root.querySelector(`.note:last-child`);
+  };
+  try {
+    let note = await newNote(450);
+    const input = note.querySelector("textarea");
+    assert.equal(input.placeholder, "");
+    assert.equal(note.querySelector(".note-head"), null);
+    input.dispatchEvent(new p.w.FocusEvent("blur"));
+    await tick();
+    assert.equal(p.root.querySelectorAll(".note").length, 0);
+    assert.equal(p.api.list().length, 0);
+    assert.equal(p.root.querySelector('[data-action="undo"]').disabled, true);
+
+    note = await newNote(500);
+    const text = note.querySelector("textarea");
+    text.value = "Keep me";
+    text.dispatchEvent(new p.w.Event("input", { bubbles: true }));
+    text.dispatchEvent(new p.w.FocusEvent("blur"));
+    note.querySelector("[data-fold]").click();
+    await tick();
+    assert.equal(note.classList.contains("collapsed"), true);
+    const chip = note.querySelector(".note-chip");
+    for (const type of ["pointerdown", "pointerup"])
+      (type === "pointerdown" ? chip : p.w.document).dispatchEvent(
+        new p.w.MouseEvent(type, {
+          bubbles: true,
+          button: 0,
+          clientX: 1,
+          clientY: 1,
+        }),
+      );
+    await tick();
+    assert.equal(note.classList.contains("collapsed"), false);
+    assert.equal(p.api.list()[0].text, "Keep me");
+  } finally {
+    p.close();
+  }
+});
 test("notes preserve edited text through undo/redo; controls have no save count", async () => {
   const p = await page();
   p.click('[data-mode="note"]');

@@ -213,7 +213,7 @@
     .divider{width:1px;height:16px;background:#e7e7e7;margin:0 5px}.color-dot{width:14px;height:14px;background:var(--ink,#292929);border-radius:4px;box-shadow:inset 0 0 0 1px #00000012}.width-dot{display:block;width:var(--width,3px);height:var(--width,3px);background:currentColor;border-radius:50%}
     .popover{pointer-events:auto;position:absolute;bottom:50px;right:70px;display:flex;align-items:center;gap:2px;padding:6px;border:1px solid #e4e4e4;border-radius:8px;background:#fff;box-shadow:0 4px 16px #0000000d}.popover button{border:0;background:transparent;width:28px;height:28px;border-radius:5px;display:grid;place-items:center;color:#444;cursor:pointer}.popover button:hover{background:#f1f1f1}.popover button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #aaa}.swatch{width:16px;height:16px;border-radius:4px;background:var(--swatch);box-shadow:inset 0 0 0 1px #00000010}.color-popover{display:grid;grid-template-columns:repeat(8,28px)}.custom-color{grid-column:1/-1;width:100%;height:28px;border:1px solid #e7e7e7;padding:0 8px;margin-top:4px;color:#444;background:#fafafa;border-radius:4px;font-size:12px}.width-popover{right:40px}
     .hint{pointer-events:none;position:fixed;bottom:79px;left:50%;transform:translateX(-50%);padding:7px 10px;border-radius:6px;background:#252525;color:white;font-size:12px;white-space:nowrap;opacity:0;transition:opacity .15s}.hint.show{opacity:1}
-    .notes{position:fixed;inset:0;pointer-events:none}.note{position:absolute;pointer-events:auto;width:232px;background:#fff;border:1px solid #dedede;box-shadow:0 4px 16px #0000000a;border-radius:8px;overflow:hidden;color:#303030}.note-head{height:32px;padding:4px 6px 0 10px;display:flex;align-items:center;justify-content:space-between;cursor:grab;user-select:none;color:#999}.note-head:active{cursor:grabbing}.note-head>svg{width:14px;height:14px}.note-head>div{display:flex;gap:2px}.note-head button{display:grid;place-items:center;width:24px;height:24px;padding:5px;border:0;background:transparent;color:#777;border-radius:4px}.note-head button:hover{background:#f1f1f1;color:#222}.note-head button svg{width:14px;height:14px}.note textarea{display:block;resize:none;min-height:104px;width:100%;padding:6px 12px 14px;border:0;outline:none;background:transparent;color:inherit;line-height:1.55;font-size:13px}.note textarea::placeholder{color:#999}.note.collapsed textarea{display:none}.note.collapsed{width:104px}
+    .notes{position:fixed;inset:0;pointer-events:none}.note{position:absolute;pointer-events:auto;width:232px;padding:8px;background:#fff;border:1px solid #e2e2e2;border-radius:10px;box-shadow:0 4px 16px #0000000d;color:#303030;cursor:grab;touch-action:none}.note.dragging{cursor:grabbing;box-shadow:0 8px 24px #00000018}.note textarea{display:block;resize:none;field-sizing:content;min-height:40px;max-height:320px;width:100%;padding:2px 4px;border:0;outline:none;background:transparent;color:inherit;line-height:1.55;font-size:13px;cursor:text}.note-tools{position:absolute;top:4px;right:4px;display:flex;gap:1px;padding:2px;border-radius:7px;background:#fff;box-shadow:0 0 0 1px #00000012,0 2px 6px #0000000f;opacity:0;transform:translateY(2px);transition:opacity .12s,transform .12s;pointer-events:none}.note:hover .note-tools,.note:focus-within .note-tools{opacity:1;transform:none;pointer-events:auto}.note-tools>*{display:grid;place-items:center;width:22px;height:22px;padding:4px;border:0;border-radius:5px;background:transparent;color:#888}.note-tools>span{cursor:grab}.note-tools button{cursor:pointer}.note-tools button:hover{background:#f1f1f1;color:#222}.note-tools svg{width:14px;height:14px}.note-chip{display:none}.note.collapsed{width:auto;padding:6px;border-radius:50%}.note.collapsed textarea,.note.collapsed .note-tools{display:none}.note.collapsed .note-chip{display:grid;place-items:center;width:18px;height:18px;color:#666}.note-chip svg{width:16px;height:16px}
     .launcher{position:fixed;right:20px;bottom:20px;pointer-events:auto;display:grid;place-items:center;width:36px;height:36px;padding:9px;background:#fff;color:#555;border:1px solid #e4e4e4;border-radius:7px;box-shadow:0 3px 12px #00000008}.launcher:hover{color:#111;background:#fafafa}.launcher svg{width:18px;height:18px}.hidden{display:none!important}.status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
     @media(max-width:650px){.toolbar{bottom:12px;flex-wrap:wrap;justify-content:center}.tools{gap:0}.tool{min-width:30px;width:30px;padding:6px}.divider{margin:0 3px}.hint{bottom:100px}.popover{right:0;bottom:48px}}
     :host([data-pdf]) .toolbar{top:48px;bottom:auto;left:0;transform:none;width:100%;max-width:none;min-height:44px;justify-content:center;flex-wrap:wrap;border:0;border-radius:0;background:#fff;box-shadow:0 1px 0 #e8e8e8}
@@ -672,51 +672,76 @@
         node = document.createElement("div");
         node.className = "note";
         node.dataset.id = a.id;
-        node.innerHTML = `<div class="note-head" title="Drag note">${svgIcon("grip")}<div><button data-fold title="Collapse note" aria-label="Collapse note">${svgIcon("minus")}</button><button data-remove title="Delete note" aria-label="Delete note">${svgIcon("close")}</button></div></div><textarea placeholder="Add a note…" aria-label="Sticky note text" spellcheck="true"></textarea>`;
-        node.querySelector("textarea").value = a.text || "";
-        node.querySelector("textarea").addEventListener("input", (e) => {
+        node.innerHTML = `<span class="note-chip" title="Open note">${svgIcon("note")}</span><textarea aria-label="Note" spellcheck="true"></textarea><div class="note-tools"><span title="Drag note">${svgIcon("grip")}</span><button data-fold title="Minimize note" aria-label="Minimize note">${svgIcon("minus")}</button><button data-remove title="Delete note" aria-label="Delete note">${svgIcon("close")}</button></div>`;
+        const input = node.querySelector("textarea");
+        input.value = a.text || "";
+        input.addEventListener("input", (e) => {
           const current = items.get(a.id);
           if (current)
             change(a.id, { ...current, text: e.target.value }, false);
         });
+        // A note left empty is discarded; a fresh one leaves no undo step.
+        input.addEventListener("blur", () => {
+          const current = items.get(a.id);
+          if (!current || current.text?.trim()) return;
+          const last = undo.at(-1);
+          if (last?.id === a.id && !last.before) {
+            undo.pop();
+            change(a.id, null, false);
+          } else change(a.id, null);
+        });
         node.querySelector("[data-remove]").onclick = () => change(a.id, null);
-        node.querySelector("[data-fold]").onclick = () => {
+        const fold = () => {
           const current = items.get(a.id);
           change(a.id, { ...current, collapsed: !current.collapsed });
         };
-        node
-          .querySelector(".note-head")
-          .addEventListener("pointerdown", (e) => {
-            if (e.target.closest("button")) return;
-            e.preventDefault();
-            const original = structuredClone(items.get(a.id)),
-              origin = xy(original.point, original.anchor),
-              sx = e.clientX,
-              sy = e.clientY;
-            const move = (ev) => {
-              const cur = items.get(a.id);
-              items.set(a.id, {
-                ...cur,
-                point: point(
-                  origin[0] + ev.clientX - sx,
-                  origin[1] + ev.clientY - sy,
-                  cur.anchor,
-                ),
-              });
-              request();
-            };
-            const up = () => {
-              document.removeEventListener("pointermove", move, true);
-              document.removeEventListener("pointerup", up, true);
-              const updated = structuredClone(items.get(a.id));
-              undo.push({ id: a.id, before: original, after: updated });
-              redo = [];
-              persist(a.id, updated);
-              status();
-            };
-            document.addEventListener("pointermove", move, true);
-            document.addEventListener("pointerup", up, true);
-          });
+        node.querySelector("[data-fold]").onclick = fold;
+        // Drag from the card's edge, the grip, or a minimized chip; a
+        // click on the chip without moving reopens the note.
+        node.addEventListener("pointerdown", (e) => {
+          if (e.button !== 0 || e.target.closest("textarea, button")) return;
+          e.preventDefault();
+          const original = structuredClone(items.get(a.id)),
+            origin = xy(original.point, original.anchor),
+            sx = e.clientX,
+            sy = e.clientY;
+          let moved = false;
+          const move = (ev) => {
+            if (!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 3)
+              return;
+            moved = true;
+            node.classList.add("dragging");
+            const cur = items.get(a.id);
+            items.set(a.id, {
+              ...cur,
+              point: point(
+                origin[0] + ev.clientX - sx,
+                origin[1] + ev.clientY - sy,
+                cur.anchor,
+              ),
+            });
+            request();
+          };
+          const up = () => {
+            document.removeEventListener("pointermove", move, true);
+            document.removeEventListener("pointerup", up, true);
+            node.classList.remove("dragging");
+            if (!moved) {
+              if (items.get(a.id)?.collapsed) {
+                fold();
+                requestAnimationFrame(() => input.focus());
+              } else input.focus();
+              return;
+            }
+            const updated = structuredClone(items.get(a.id));
+            undo.push({ id: a.id, before: original, after: updated });
+            redo = [];
+            persist(a.id, updated);
+            status();
+          };
+          document.addEventListener("pointermove", move, true);
+          document.addEventListener("pointerup", up, true);
+        });
         notes.append(node);
       }
       node.style.left = p[0] + "px";
