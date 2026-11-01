@@ -173,7 +173,9 @@
       color = palette[0],
       inkColor = palette[0],
       highlightColor = "#efd27f",
-      width = 3,
+      // Each drawing tool keeps its own stroke; shapes default finer than ink.
+      widths = { pen: 3, marker: 3, box: 2, arrow: 2 },
+      width = widths.pen,
       hidden = false;
     let maps = new Map(),
       dirty = true,
@@ -439,6 +441,7 @@
       color = ["highlight", "marker"].includes(mode)
         ? highlightColor
         : inkColor;
+      if (mode in widths) width = widths[mode];
       syncControls();
       closePopovers();
       request();
@@ -966,6 +969,7 @@
         const size = e.target.closest("[data-width]");
         if (size) {
           width = Number(size.dataset.width);
+          if (mode in widths) widths[mode] = width;
           syncControls();
           closePopovers();
           return;

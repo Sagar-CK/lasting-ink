@@ -141,6 +141,28 @@ test("Escape and a blank PDF click clear drawing selection for page navigation",
     p.close();
   }
 });
+test("Rectangles and arrows default to a finer stroke than ink, and each tool keeps its own size", async () => {
+  const p = await page();
+  const draw = (mode, x) => {
+    p.click(`[data-mode="${mode}"]`);
+    p.pointer("pointerdown", x, 200);
+    p.pointer("pointermove", x + 80, 280);
+    p.pointer("pointerup", x + 80, 280);
+    return p.api.list().at(-1).width;
+  };
+  try {
+    assert.equal(draw("box", 100), 2);
+    assert.equal(draw("arrow", 200), 2);
+    assert.equal(draw("pen", 300), 3);
+    p.click('[data-mode="box"]');
+    p.click('[data-width="5"]');
+    assert.equal(draw("pen", 400), 3);
+    assert.equal(draw("box", 500), 5);
+    assert.equal(draw("arrow", 600), 2);
+  } finally {
+    p.close();
+  }
+});
 test("PDF ink and editable notes survive closing and reopening with normalized page coordinates", async () => {
   const store = {};
   let p = await page({
