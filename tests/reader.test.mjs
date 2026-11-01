@@ -202,3 +202,28 @@ test("PDF export retains forms and creates Unicode notes and vector marks", asyn
   );
   assert.equal(out.flattened, false);
 });
+test("PDF export writes plain text-tool text onto the page instead of a comment", async () => {
+  const src = await PDFDocument.create();
+  src.addPage([600, 800]);
+  const out = await exportPdf({
+    bytes: await src.save(),
+    annotations: [
+      {
+        type: "note",
+        text: "Weight sharing\nacross steps",
+        point: [0.3, 0.4],
+        color: "#222222",
+        anchor: { surface: "1" },
+      },
+      { type: "note", text: "  ", point: [0.1, 0.1], anchor: { surface: "1" } },
+    ],
+    pageInfos: [{ toPdf: (p) => [p[0] * 600, (1 - p[1]) * 800] }],
+  });
+  const d = await PDFDocument.load(out.bytes);
+  assert.equal(
+    d.getPage(0).node.lookup(PDFName.of("Annots"))?.size?.() ?? 0,
+    0,
+  );
+  const fonts = d.getPage(0).node.Resources().lookup(PDFName.of("Font"));
+  assert.ok(fonts && fonts.keys().length === 1);
+});

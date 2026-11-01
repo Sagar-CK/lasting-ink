@@ -19,6 +19,7 @@ export const paths = {
   grip: '<path d="M9 5h.01M15 5h.01M9 12h.01M15 12h.01M9 19h.01M15 19h.01" stroke-width="3"/>',
   sidebar:
     '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M5.5 8h1M5.5 12h1"/>',
+  text: '<path d="M5 7V5h14v2M12 5v14M9 19h6"/>',
   pages:
     '<rect x="4" y="3" width="11" height="14" rx="1.5"/><path d="M9 21h9.5a1.5 1.5 0 0 0 1.5-1.5V8"/>',
   outline:

@@ -913,7 +913,7 @@ function updateNotes() {
       box: "Rectangle",
       arrow: "Arrow",
       highlight: "Highlight",
-      note: "Comment",
+      note: "Text",
     };
     title.textContent = `Page ${a.surface || a.anchor?.surface || "?"} · ${labels[a.type] || a.type}`;
     const text = document.createElement("span");

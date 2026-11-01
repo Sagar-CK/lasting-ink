@@ -230,46 +230,36 @@ test("text highlights re-anchor after inserted content, including element select
   assert.equal(p.root.querySelectorAll(".overlay rect").length, 1);
   p.close();
 });
-test("notes are a bare text field: no header or placeholder, empty ones vanish, minimized ones reopen", async () => {
+test("the text tool writes straight onto the page: no card, no placeholder, empty boxes vanish", async () => {
   const p = await page();
-  const newNote = async (x) => {
+  const newText = async (x) => {
     p.click('[data-mode="note"]');
     p.pointer("pointerdown", x, 250);
     await tick();
-    return p.root.querySelector(`.note:last-child`);
+    return p.root.querySelector(".note:last-child");
   };
   try {
-    let note = await newNote(450);
-    const input = note.querySelector("textarea");
+    assert.match(p.root.querySelector('[data-mode="note"]').title, /^Text/);
+    let box = await newText(450);
+    const input = box.querySelector("textarea");
     assert.equal(input.placeholder, "");
-    assert.equal(note.querySelector(".note-head"), null);
+    assert.equal(box.querySelector(".note-head, [data-fold]"), null);
     input.dispatchEvent(new p.w.FocusEvent("blur"));
     await tick();
     assert.equal(p.root.querySelectorAll(".note").length, 0);
     assert.equal(p.api.list().length, 0);
     assert.equal(p.root.querySelector('[data-action="undo"]').disabled, true);
 
-    note = await newNote(500);
-    const text = note.querySelector("textarea");
+    box = await newText(500);
+    const text = box.querySelector("textarea");
     text.value = "Keep me";
     text.dispatchEvent(new p.w.Event("input", { bubbles: true }));
     text.dispatchEvent(new p.w.FocusEvent("blur"));
-    note.querySelector("[data-fold]").click();
     await tick();
-    assert.equal(note.classList.contains("collapsed"), true);
-    const chip = note.querySelector(".note-chip");
-    for (const type of ["pointerdown", "pointerup"])
-      (type === "pointerdown" ? chip : p.w.document).dispatchEvent(
-        new p.w.MouseEvent(type, {
-          bubbles: true,
-          button: 0,
-          clientX: 1,
-          clientY: 1,
-        }),
-      );
-    await tick();
-    assert.equal(note.classList.contains("collapsed"), false);
     assert.equal(p.api.list()[0].text, "Keep me");
+    box.querySelector("[data-remove]").click();
+    await tick();
+    assert.equal(p.api.list().length, 0);
   } finally {
     p.close();
   }

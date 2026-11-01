@@ -2,6 +2,7 @@ import {
   PDFDocument,
   PDFName,
   PDFHexString,
+  StandardFonts,
   rgb,
   degrees,
 } from "./vendor/pdf-lib.mjs";
@@ -9,6 +10,15 @@ import {
 function color(value) {
   const hex = /^#[\da-f]{6}$/i.test(value) ? value.slice(1) : "292929";
   return rgb(...[0, 2, 4].map((n) => parseInt(hex.slice(n, n + 2), 16) / 255));
+}
+
+function fitsFont(font, text) {
+  try {
+    for (const line of text.split("\n")) font.encodeText(line);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function exportPdf({ bytes, annotations, pageInfos, rasterize }) {
@@ -29,6 +39,7 @@ export async function exportPdf({ bytes, annotations, pageInfos, rasterize }) {
     }
   }
   const pages = document.getPages();
+  let helvetica;
   for (const item of annotations) {
     const index = Number(item.surface || item.anchor?.surface) - 1;
     if (!pages[index] || !pageInfos[index]) continue;
@@ -63,6 +74,23 @@ export async function exportPdf({ bytes, annotations, pageInfos, rasterize }) {
       }
     } else if (item.type === "note") {
       const [x, y] = convert(item.point);
+      // Text tool: write onto the page at 10pt like the viewer shows it.
+      helvetica ??= await document.embedFont(StandardFonts.Helvetica);
+      const text = item.text || "";
+      if (!text.trim()) continue;
+      if (fitsFont(helvetica, text)) {
+        page.drawText(text, {
+          x,
+          y: y - 10,
+          size: 10,
+          font: helvetica,
+          color: ink,
+          lineHeight: 14.5,
+          maxWidth: 280,
+        });
+        continue;
+      }
+      // Characters Helvetica cannot encode keep the text as a PDF comment.
       const note = document.context.obj({
         Type: "Annot",
         Subtype: "Text",
