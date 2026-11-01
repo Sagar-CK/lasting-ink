@@ -178,7 +178,9 @@ input[type="range"]::-moz-range-thumb {
 header {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 10;
+  /* Above the annotation layer, so toolbar menus that hang over the page
+     stay clickable while a drawing tool is active. */
+  z-index: 2147483647;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;

@@ -208,7 +208,7 @@
     :host{all:initial;color:#292929;font-family:"Lasting Ink Geist",Geist,Arial,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}
     *{box-sizing:border-box}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #777;outline-offset:2px}
     .overlay{position:fixed;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-    .capture{position:fixed;inset:0;pointer-events:none;touch-action:none}.capture.on{pointer-events:auto;cursor:crosshair}.capture.erase{cursor:cell}
+    .capture{position:fixed;inset:0;pointer-events:none;touch-action:none}.capture.on{pointer-events:auto;cursor:crosshair}.capture.paused{pointer-events:none}.capture.erase{cursor:cell}
     .toolbar{pointer-events:auto;position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:2px;padding:6px;border:1px solid #e4e4e4;border-radius:9px;background:#fff;box-shadow:0 4px 16px #0000000a;max-width:calc(100vw - 24px)}
     .tools{display:flex;gap:2px}.tool{background:transparent;border:0;color:#666;border-radius:5px;min-width:32px;width:32px;height:32px;display:grid;place-items:center;padding:7px;transition:background .12s,color .12s}.tool svg{width:18px;height:18px}.tool:hover{background:#f1f1f1;color:#222}.tool:active{background:#e8e8e8}.tool[aria-pressed=true]{background:#ededed;color:#171717}.tool:disabled{opacity:.28;cursor:default}.tool:disabled:hover{background:transparent}
     .divider{width:1px;height:16px;background:#e7e7e7;margin:0 5px}.color-dot{width:14px;height:14px;background:var(--ink,#292929);border-radius:4px;box-shadow:inset 0 0 0 1px #00000012}.width-dot{display:block;width:var(--width,3px);height:var(--width,3px);background:currentColor;border-radius:50%}
@@ -271,6 +271,7 @@
         .popover button:hover,.more-popover .tool:hover{background:var(--ink-hover,#4a4a4a)}
         .popover button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #aaa}
         .more-popover .tool[aria-pressed=true]{background:var(--ink-selected,#5b5b5b)}
+        .tool[aria-expanded=true]{background:var(--ink-hover,#4a4a4a);color:var(--ink-text,#f1f1f1)}
         .custom-color{background:var(--ink-input,#1e1e1e);color:var(--ink-text,#f1f1f1);border-color:var(--ink-border,#555)}
         @media(max-width:600px){.toolbar,.tools{gap:1px}.tool{width:28px;min-width:28px}.divider{margin:0 3px}}
         @media(max-width:340px){.tool{width:24px;min-width:24px;padding:4px}}
@@ -982,6 +983,7 @@
           closePopovers();
           pop.classList.toggle("hidden", !wasHidden);
           $("." + action + "-button").setAttribute("aria-expanded", wasHidden);
+          syncCapture();
           return;
         }
         const swatch = e.target.closest("[data-color]");
@@ -1051,6 +1053,14 @@
       all(".popover").forEach((p) => p.classList.add("hidden"));
       all("[aria-expanded]").forEach((b) =>
         b.setAttribute("aria-expanded", "false"),
+      );
+      syncCapture();
+    }
+    // While a toolbar menu is open, a click on the page only closes it.
+    function syncCapture() {
+      capture.classList.toggle(
+        "paused",
+        all(".popover").some((p) => !p.classList.contains("hidden")),
       );
     }
     function syncControls() {
