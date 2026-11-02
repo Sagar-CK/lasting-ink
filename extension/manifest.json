@@ -1,10 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Lasting Ink",
-  "version": "0.5.5",
-  "description": "Annotate webpages and PDFs.",
-  "permissions": ["storage", "activeTab", "scripting"],
-  "host_permissions": ["http://*/*", "https://*/*"],
+  "version": "0.6.0",
+  "description": "Read and annotate PDFs in your browser.",
+  "permissions": ["storage"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
@@ -18,13 +17,6 @@
       "128": "icons/icon-128.png"
     }
   },
-  "content_scripts": [
-    {
-      "matches": ["http://*/*", "https://*/*"],
-      "js": ["annotator.js", "content.js"],
-      "run_at": "document_idle"
-    }
-  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; object-src 'self'"
   },
@@ -35,12 +27,6 @@
     }
   },
   "minimum_chrome_version": "151",
-  "web_accessible_resources": [
-    {
-      "resources": ["vendor/geist.woff2"],
-      "matches": ["http://*/*", "https://*/*"]
-    }
-  ],
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",

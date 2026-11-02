@@ -1454,9 +1454,6 @@
       request();
       onChange([...items.values()]);
     });
-    chrome.runtime.onMessage.addListener((message) => {
-      if (message.type === "toggle-ink") toggle();
-    });
     if (!pdf)
       setInterval(() => {
         const next = canonical(location.href);

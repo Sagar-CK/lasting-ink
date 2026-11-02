@@ -1444,7 +1444,7 @@ try {
   } else {
     if (!chrome.mimeHandler)
       throw new Error(
-        "Open a PDF file from Document options, or open a PDF link in Arc.",
+        "Open a PDF link, or open a local file from Document options.",
       );
     await loadDocument(await chrome.mimeHandler.getStreamInfo());
   }
