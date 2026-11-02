@@ -332,6 +332,66 @@ test("text has its own size and colour, set from the toolbar while editing", asy
     p.close();
   }
 });
+test("text boxes select and move on click, and only take typing on double-click or Enter", async () => {
+  const p = await page({ pdf: true });
+  const mouse = (target, type, x, y) =>
+    target.dispatchEvent(
+      new p.w.MouseEvent(type, {
+        bubbles: true,
+        composed: true,
+        button: 0,
+        clientX: x,
+        clientY: y,
+      }),
+    );
+  const press = (node, x, y, to = [x, y]) => {
+    mouse(node, "pointerdown", x, y);
+    if (to[0] !== x || to[1] !== y) mouse(p.w.document, "pointermove", ...to);
+    mouse(p.w.document, "pointerup", ...to);
+  };
+  try {
+    p.click('[data-mode="note"]');
+    p.pointer("pointerdown", 450, 250);
+    await tick();
+    const box = p.root.querySelector(".note"),
+      input = box.querySelector("textarea");
+    input.focus();
+    assert.equal(box.classList.contains("editing"), true);
+    input.value = "Move me";
+    input.dispatchEvent(new p.w.Event("input", { bubbles: true }));
+    input.dispatchEvent(
+      new p.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+    );
+    await tick();
+    assert.equal(box.classList.contains("editing"), false);
+    assert.equal(box.classList.contains("selected"), true);
+    assert.equal(p.api.selected(), p.api.list()[0].id);
+
+    const before = p.api.list()[0].point;
+    press(box, 455, 255, [515, 295]);
+    await tick();
+    assert.notDeepEqual(p.api.list()[0].point, before);
+    assert.equal(box.classList.contains("editing"), false);
+
+    await new Promise((r) => setTimeout(r, 450));
+    press(box, 520, 300);
+    assert.equal(box.classList.contains("editing"), false);
+    press(box, 520, 300);
+    assert.equal(box.classList.contains("editing"), true);
+    assert.equal(p.root.activeElement, input);
+
+    input.dispatchEvent(
+      new p.w.KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+    );
+    p.w.document.dispatchEvent(
+      new p.w.KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
+    assert.equal(box.classList.contains("editing"), true);
+    assert.equal(p.api.list()[0].text, "Move me");
+  } finally {
+    p.close();
+  }
+});
 test("notes preserve edited text through undo/redo; controls have no save count", async () => {
   const p = await page();
   p.click('[data-mode="note"]');

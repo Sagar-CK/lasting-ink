@@ -179,6 +179,7 @@
       textColor = palette[0],
       textSize = 8,
       activeNoteId = null,
+      editingId = null,
       pointerInToolbar = false,
       // Each drawing tool keeps its own stroke; shapes default finer than ink.
       widths = { pen: 3, marker: 3, box: 2, arrow: 2 },
@@ -220,7 +221,7 @@
     .divider{width:1px;height:16px;background:#e7e7e7;margin:0 5px}.color-dot{width:14px;height:14px;background:var(--ink,#292929);border-radius:4px;box-shadow:inset 0 0 0 1px #00000012}.width-dot{display:block;width:var(--width,3px);height:var(--width,3px);background:currentColor;border-radius:50%}
     .popover{pointer-events:auto;position:absolute;bottom:50px;right:70px;display:flex;align-items:center;gap:2px;padding:6px;border:1px solid #e4e4e4;border-radius:8px;background:#fff;box-shadow:0 4px 16px #0000000d}.popover button{border:0;background:transparent;width:28px;height:28px;border-radius:5px;display:grid;place-items:center;color:#444;cursor:pointer}.popover button:hover{background:#f1f1f1}.popover button[aria-pressed=true]{box-shadow:inset 0 0 0 1px #aaa}.swatch{width:16px;height:16px;border-radius:4px;background:var(--swatch);box-shadow:inset 0 0 0 1px #00000010}.color-popover{display:grid;grid-template-columns:repeat(8,28px)}.custom-color{grid-column:1/-1;width:100%;height:28px;border:1px solid #e7e7e7;padding:0 8px;margin-top:4px;color:#444;background:#fafafa;border-radius:4px;font-size:12px}.width-popover,.size-popover{right:40px}.size-glyph{display:block;font:500 13px/1 'Lasting Ink Geist',Geist,system-ui,sans-serif}.size-glyph::before{content:"A"}.size-glyph{text-box:trim-both cap alphabetic}.tool[aria-expanded=true]{background:#ededed;color:#171717}.popover:not(.hidden){animation:ink-pop .14s cubic-bezier(.25,.8,.25,1)}@keyframes ink-pop{from{opacity:0;transform:translateY(-4px)}}
     .hint{pointer-events:none;position:fixed;bottom:79px;left:50%;transform:translateX(-50%);padding:7px 10px;border-radius:6px;background:#252525;color:white;font-size:12px;white-space:nowrap;opacity:0;transition:opacity .15s}.hint.show{opacity:1}
-    .notes{position:fixed;inset:0;pointer-events:none}.note{position:absolute;pointer-events:auto;padding:.15em .3em;margin:-.15em -.3em;border-radius:4px;color:#292929;font-size:13px;cursor:grab;touch-action:none}.note:hover,.note:focus-within{box-shadow:0 0 0 1px #0000002e}.note.dragging{cursor:grabbing;box-shadow:0 0 0 1px #00000040}.note textarea{display:block;resize:none;field-sizing:content;min-width:6ch;max-width:28em;min-height:1.45em;padding:0;border:0;outline:none;background:transparent;color:inherit;font:inherit;font-family:'Lasting Ink Geist',Geist,system-ui,sans-serif;line-height:1.45;overflow:hidden;cursor:text}.note-tools{position:absolute;bottom:100%;right:-4px;display:flex;gap:1px;padding:2px 2px 4px;opacity:0;transform:translateY(2px);transition:opacity .12s,transform .12s;pointer-events:none}.note:hover .note-tools,.note:focus-within .note-tools{opacity:1;transform:none;pointer-events:auto}.note-tools>*{display:grid;place-items:center;width:22px;height:22px;padding:4px;border:0;border-radius:5px;background:#fff;color:#777;box-shadow:0 0 0 1px #00000014,0 1px 3px #0000000f}.note-tools>span{cursor:grab}.note-tools button{cursor:pointer}.note-tools button:hover{color:#222}.note-tools svg{width:14px;height:14px}
+    .notes{position:fixed;inset:0;pointer-events:none}.note{position:absolute;pointer-events:auto;padding:.15em .3em;margin:-.15em -.3em;border-radius:4px;color:#292929;font-size:13px;cursor:grab;touch-action:none}.note:hover,.note.editing{box-shadow:0 0 0 1px #0000002e}.note.selected{box-shadow:none;outline:1px dashed #777;outline-offset:1px}.note.dragging{cursor:grabbing;box-shadow:0 0 0 1px #00000040}.note textarea{display:block;resize:none;field-sizing:content;min-width:6ch;max-width:28em;min-height:1.45em;padding:0;border:0;outline:none;background:transparent;color:inherit;font:inherit;font-family:'Lasting Ink Geist',Geist,system-ui,sans-serif;line-height:1.45;overflow:hidden;cursor:inherit;pointer-events:none;user-select:none}.note.editing textarea{pointer-events:auto;user-select:text;cursor:text}.note-tools{position:absolute;bottom:100%;right:-4px;display:flex;gap:1px;padding:2px 2px 4px;opacity:0;transform:translateY(2px);transition:opacity .12s,transform .12s;pointer-events:none}.note:hover .note-tools,.note.editing .note-tools,.note.selected .note-tools{opacity:1;transform:none;pointer-events:auto}.note-tools>*{display:grid;place-items:center;width:22px;height:22px;padding:4px;border:0;border-radius:5px;background:#fff;color:#777;box-shadow:0 0 0 1px #00000014,0 1px 3px #0000000f}.note-tools>span{cursor:grab}.note-tools button{cursor:pointer}.note-tools button:hover{color:#222}.note-tools svg{width:14px;height:14px}
     .launcher{position:fixed;right:20px;bottom:20px;pointer-events:auto;display:grid;place-items:center;width:36px;height:36px;padding:9px;background:#fff;color:#555;border:1px solid #e4e4e4;border-radius:7px;box-shadow:0 3px 12px #00000008}.launcher:hover{color:#111;background:#fafafa}.launcher svg{width:18px;height:18px}.hidden{display:none!important}.status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
     @media(max-width:650px){.toolbar{bottom:12px;flex-wrap:wrap;justify-content:center}.tools{gap:0}.tool{min-width:30px;width:30px;padding:6px}.divider{margin:0 3px}.hint{bottom:100px}.popover{right:0;bottom:48px}}
     :host([data-pdf]) .toolbar{top:48px;bottom:auto;left:0;transform:none;width:100%;max-width:none;min-height:44px;justify-content:center;flex-wrap:wrap;border:0;border-radius:0;background:#fff;box-shadow:0 1px 0 #e8e8e8}
@@ -445,6 +446,7 @@
       if (activeNoteId) {
         const id = activeNoteId;
         activeNoteId = null;
+        stopEditing(id);
         discardIfEmpty(id);
       }
       capture.className =
@@ -684,6 +686,39 @@
         }),
       );
     }
+    // Selected and editing outlines follow state at once, not on repaint.
+    function noteState(node) {
+      const id = node.dataset.id;
+      node.classList.toggle("editing", editingId === id);
+      node.classList.toggle(
+        "selected",
+        editingId !== id && (selectedId === id || activeNoteId === id),
+      );
+    }
+    function syncNotes() {
+      notes.querySelectorAll(".note").forEach(noteState);
+    }
+    function selectText(id) {
+      selectedId = activeNoteId = id;
+      color = items.get(id)?.color || textColor;
+      onChange([...items.values()]);
+      syncControls();
+      syncNotes();
+      request();
+    }
+    function startEditing(id) {
+      const input = notes.querySelector(`[data-id="${id}"] textarea`);
+      if (!input) return;
+      editingId = id;
+      syncNotes();
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
+    function stopEditing(id) {
+      if (editingId !== id) return;
+      editingId = null;
+      syncNotes();
+    }
     function discardIfEmpty(id) {
       const current = items.get(id);
       if (!current || current.type !== "note" || current.text?.trim()) return;
@@ -711,7 +746,12 @@
         });
         // Text left empty is discarded; a fresh box leaves no undo step.
         input.addEventListener("focus", () => {
-          activeNoteId = a.id;
+          editingId = activeNoteId = a.id;
+          syncNotes();
+          if (selectedId === a.id) {
+            selectedId = null;
+            onChange([...items.values()]);
+          }
           color = items.get(a.id)?.color || textColor;
           syncControls();
         });
@@ -722,14 +762,30 @@
             return;
           }
           if (activeNoteId === a.id) activeNoteId = null;
+          stopEditing(a.id);
           discardIfEmpty(a.id);
           syncControls();
+          request();
+        });
+        // Escape finishes typing and leaves the box selected.
+        input.addEventListener("keydown", (e) => {
+          if (e.key !== "Escape") return;
+          e.preventDefault();
+          e.stopPropagation();
+          input.blur();
+          if (items.has(a.id)) selectText(a.id);
         });
         node.querySelector("[data-remove]").onclick = () => change(a.id, null);
-        // Drag from the grip or the box's edge; a click there edits.
+        // Outside editing the box is an object: click selects, drag moves,
+        // double-click (or Enter while selected) starts typing.
+        let lastClick = 0;
         node.addEventListener("pointerdown", (e) => {
-          if (e.button !== 0 || e.target.closest("textarea, button")) return;
+          if (e.button !== 0 || e.target.closest("button")) return;
+          if (editingId === a.id && e.target.closest("textarea")) return;
           e.preventDefault();
+          // Leaving another box being edited, as a click elsewhere would.
+          const focused = shadow.activeElement;
+          if (focused && focused !== input) focused.blur();
           const original = structuredClone(items.get(a.id)),
             origin = xy(original.point, original.anchor),
             sx = e.clientX,
@@ -756,9 +812,13 @@
             document.removeEventListener("pointerup", up, true);
             node.classList.remove("dragging");
             if (!moved) {
-              input.focus();
+              const now = Date.now();
+              if (now - lastClick < 400) startEditing(a.id);
+              else selectText(a.id);
+              lastClick = now;
               return;
             }
+            lastClick = 0;
             const updated = structuredClone(items.get(a.id));
             undo.push({ id: a.id, before: original, after: updated });
             redo = [];
@@ -770,6 +830,7 @@
         });
         notes.append(node);
       }
+      noteState(node);
       node.style.left = p[0] + "px";
       node.style.top = p[1] + "px";
       // 10pt on the page, so text keeps its size relative to the document.
@@ -1163,8 +1224,12 @@
         if (keep) return;
         const id = activeNoteId;
         activeNoteId = null;
+        if (selectedId === id) selectedId = null;
+        stopEditing(id);
         discardIfEmpty(id);
         syncControls();
+        syncNotes();
+        request();
       },
       true,
     );
@@ -1206,6 +1271,11 @@
         )
           return;
         if (e.defaultPrevented || e.isComposing) return;
+        if (e.key === "Enter" && items.get(selectedId)?.type === "note") {
+          e.preventDefault();
+          startEditing(selectedId);
+          return;
+        }
         if (
           pdf &&
           selectedId &&
