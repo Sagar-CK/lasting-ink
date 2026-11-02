@@ -232,11 +232,10 @@
     @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
     </style><svg class="overlay" aria-hidden="true"></svg><div class="capture"></div><div class="notes"></div><div class="hint" role="status"></div><div class="toolbar" role="toolbar" aria-label="Lasting Ink annotation tools"><div class="tools">${[
       ["select", "Select (V)"],
-      ["highlight", "Highlight text (H)"],
+      ["highlight", "Highlighter (H)", "marker"],
       ["erase", "Eraser (E)"],
       ["note", "Text (T)", "text"],
       ["pen", "Draw (P)"],
-      ["marker", "Highlighter (M)"],
       ["box", "Rectangle (R)"],
       ["arrow", "Arrow (A)"],
     ]
@@ -303,7 +302,6 @@
       menu.setAttribute("aria-label", "More drawing tools");
       for (const [mode, label] of [
         ["pen", "Draw"],
-        ["marker", "Highlighter"],
         ["box", "Rectangle"],
         ["arrow", "Arrow"],
       ]) {
@@ -436,6 +434,7 @@
       change(item.id, item);
       return item;
     }
+    const widthKey = (m) => (m === "highlight" ? "marker" : m);
     // Choosing the active tool again puts it down and returns to Select.
     function toggleMode(next) {
       setMode(next === mode ? "select" : next);
@@ -463,7 +462,7 @@
         : mode === "note"
           ? textColor
           : inkColor;
-      if (mode in widths) width = widths[mode];
+      if (widthKey(mode) in widths) width = widths[widthKey(mode)];
       syncControls();
       closePopovers();
       request();
@@ -991,9 +990,12 @@
         );
         return;
       }
+      beginStroke(e, mode, s, anchor, p);
+    });
+    function beginStroke(e, type, s, anchor, p) {
       active = {
         id: "draft",
-        type: mode,
+        type,
         anchor,
         points: [p, p],
         color,
@@ -1002,7 +1004,57 @@
       };
       capture.setPointerCapture(e.pointerId);
       request();
-    });
+    }
+    // Whether a press lands on text the highlighter can select.
+    function overText(e) {
+      const el = e.composedPath()[0];
+      if (el instanceof Element && el.closest(".textLayer"))
+        return (
+          el.tagName === "SPAN" &&
+          !el.classList.contains("markedContent") &&
+          !!el.textContent.trim()
+        );
+      const lookup =
+        document.caretPositionFromPoint || document.caretRangeFromPoint;
+      // Without a caret lookup, keep the old text-only behaviour.
+      if (!lookup) return true;
+      const caret = lookup.call(document, e.clientX, e.clientY);
+      if (!caret) return false;
+      const node = caret.offsetNode || caret.startContainer;
+      if (node?.nodeType !== Node.TEXT_NODE || !node.data.trim()) return false;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      return [...range.getClientRects()].some(
+        (r) =>
+          e.clientX >= r.left - 2 &&
+          e.clientX <= r.right + 2 &&
+          e.clientY >= r.top - 2 &&
+          e.clientY <= r.bottom + 2,
+      );
+    }
+    // Highlighter: on text it selects and highlights; elsewhere it draws.
+    document.addEventListener(
+      "pointerdown",
+      (e) => {
+        if (mode !== "highlight" || e.button !== 0 || hidden) return;
+        const path = e.composedPath();
+        if (path.includes(host) || path.includes(toolbarMount)) return;
+        const s = surfaceAt(e.clientX, e.clientY);
+        if (!s || overText(e)) return;
+        e.preventDefault();
+        getSelection()?.removeAllRanges();
+        capture.classList.add("on");
+        const anchor = anchorAt(e.clientX, e.clientY, s);
+        beginStroke(
+          e,
+          "marker",
+          s,
+          anchor,
+          point(e.clientX, e.clientY, anchor),
+        );
+      },
+      true,
+    );
     capture.addEventListener("pointermove", (e) => {
       if (!active) return;
       const p = point(e.clientX, e.clientY, active.anchor);
@@ -1021,10 +1073,12 @@
         add(a);
         request();
       }
+      if (mode === "highlight") capture.classList.remove("on");
     }
     capture.addEventListener("pointerup", finish);
     capture.addEventListener("pointercancel", () => {
       active = null;
+      if (mode === "highlight") capture.classList.remove("on");
       request();
     });
     document.addEventListener("pointerup", (e) => {
@@ -1103,7 +1157,7 @@
         const size = e.target.closest("[data-width]");
         if (size) {
           width = Number(size.dataset.width);
-          if (mode in widths) widths[mode] = width;
+          if (widthKey(mode) in widths) widths[widthKey(mode)] = width;
           syncControls();
           closePopovers();
           return;
@@ -1357,7 +1411,7 @@
           v: "select",
           h: "highlight",
           p: "pen",
-          m: "marker",
+          m: "highlight",
           n: "note",
           t: "note",
           r: "box",

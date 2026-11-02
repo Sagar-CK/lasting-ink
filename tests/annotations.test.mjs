@@ -392,6 +392,43 @@ test("text boxes select and move on click, and only take typing on double-click 
     p.close();
   }
 });
+test("one highlighter: text gets highlighted, empty space gets a freehand stroke", async () => {
+  const p = await page();
+  try {
+    if (p.root.querySelector(".launcher:not(.hidden)")) p.click(".launcher");
+    assert.equal(p.root.querySelector('[data-mode="marker"]'), null);
+    p.click('[data-mode="highlight"]');
+    assert.match(
+      p.root.querySelector('[data-mode="highlight"]').title,
+      /^Highlighter/,
+    );
+    // Nothing under the pointer is text here.
+    p.w.document.caretPositionFromPoint = () => null;
+    const at = (type, target, x, y) =>
+      target.dispatchEvent(
+        new p.w.MouseEvent(type, {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          button: 0,
+          clientX: x,
+          clientY: y,
+        }),
+      );
+    at("pointerdown", p.w.document.querySelector("main"), 150, 400);
+    const capture = p.root.querySelector(".capture");
+    at("pointermove", capture, 220, 420);
+    at("pointermove", capture, 300, 430);
+    at("pointerup", capture, 300, 430);
+    await tick();
+    const [stroke] = p.api.list();
+    assert.equal(stroke.type, "marker");
+    assert.equal(stroke.color, "#efd27f");
+    assert.equal(capture.classList.contains("on"), false);
+  } finally {
+    p.close();
+  }
+});
 test("notes preserve edited text through undo/redo; controls have no save count", async () => {
   const p = await page();
   p.click('[data-mode="note"]');
