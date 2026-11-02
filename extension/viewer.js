@@ -132,6 +132,7 @@ function syncControls() {
   if (current && current !== activeThumb) {
     activeThumb = current;
     if (sidebarOpen() && sidebarPanel === "thumbnails") revealThumb(current);
+    warmThumbs(viewer.currentPageNumber);
   }
 }
 function goTo(n) {
@@ -688,40 +689,69 @@ function thumbSize(page) {
     height: Math.round(base.height * scale),
   };
 }
+// Thumbnails render once each, either as they scroll into view or ahead
+// of time around the current page, so the sidebar opens already drawn.
+const thumbsRendered = new Set();
+let warmHandle;
+async function renderThumb(button) {
+  const n = Number(button.dataset.page);
+  if (thumbsRendered.has(n)) return;
+  thumbsRendered.add(n);
+  thumbObserver?.unobserve(button);
+  try {
+    const page = await pdf.getPage(n),
+      size = thumbSize(page),
+      v = page.getViewport({
+        scale: size.scale * Math.min(devicePixelRatio || 1, 3),
+      });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.ceil(v.width);
+    canvas.height = Math.ceil(v.height);
+    await page.render({
+      canvasContext: canvas.getContext("2d"),
+      viewport: v,
+      annotationMode: pdfjs.AnnotationMode.ENABLE,
+    }).promise;
+    const frame = button.querySelector(".thumb-frame");
+    frame.style.width = size.width + "px";
+    frame.style.height = size.height + "px";
+    frame.append(canvas);
+    frame.classList.add("loaded");
+  } catch (error) {
+    thumbsRendered.delete(n);
+    console.warn("Thumbnail:", error);
+  }
+}
+const idle = (fn) =>
+  window.requestIdleCallback
+    ? requestIdleCallback(fn, { timeout: 400 })
+    : setTimeout(fn, 16);
+const cancelIdle = (handle) =>
+  window.cancelIdleCallback ? cancelIdleCallback(handle) : clearTimeout(handle);
+// Draw the pages nearest the current one first, one at a time when idle.
+function warmThumbs(center) {
+  cancelIdle(warmHandle);
+  const queue = [];
+  for (let d = 0; d <= 8; d++)
+    for (const n of d ? [center + d, center - d] : [center])
+      if (thumbs.has(n) && !thumbsRendered.has(n)) queue.push(n);
+  const next = () => {
+    const n = queue.shift();
+    if (n === undefined) return;
+    renderThumb(thumbs.get(n)).finally(() => (warmHandle = idle(next)));
+  };
+  warmHandle = idle(next);
+}
 async function initThumbnails() {
   const guess = thumbSize(await pdf.getPage(1));
   $("#thumbnails").replaceChildren();
   thumbs.clear();
+  thumbsRendered.clear();
   activeThumb = null;
   thumbObserver?.disconnect();
   thumbObserver = new IntersectionObserver(
-    async (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        thumbObserver.unobserve(e.target);
-        try {
-          const page = await pdf.getPage(Number(e.target.dataset.page)),
-            size = thumbSize(page),
-            v = page.getViewport({
-              scale: size.scale * Math.min(devicePixelRatio || 1, 3),
-            });
-          const canvas = document.createElement("canvas");
-          canvas.width = Math.ceil(v.width);
-          canvas.height = Math.ceil(v.height);
-          await page.render({
-            canvasContext: canvas.getContext("2d"),
-            viewport: v,
-            annotationMode: pdfjs.AnnotationMode.ENABLE,
-          }).promise;
-          const frame = e.target.querySelector(".thumb-frame");
-          frame.style.width = size.width + "px";
-          frame.style.height = size.height + "px";
-          frame.append(canvas);
-          frame.classList.add("loaded");
-        } catch (error) {
-          console.warn("Thumbnail:", error);
-        }
-      }
+    (entries) => {
+      for (const e of entries) if (e.isIntersecting) renderThumb(e.target);
     },
     { root: $("#thumbnails"), rootMargin: "400px 0px" },
   );
@@ -744,6 +774,7 @@ async function initThumbnails() {
     thumbObserver.observe(button);
   }
   syncControls();
+  warmThumbs(viewer.currentPageNumber || 1);
 }
 function empty(container, text) {
   const p = document.createElement("p");
