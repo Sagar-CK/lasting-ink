@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
-    "format": "prettier --write extension/*.js extension/*.css extension/*.html extension/manifest.json scripts/*.mjs tests/*.mjs",
+    "demo": "node scripts/demo/server.mjs",
+    "format": "prettier --write extension/*.js extension/*.css extension/*.html extension/manifest.json scripts/*.mjs scripts/demo/* tests/*.mjs",
     "package": "python3 scripts/package.py"
   },
   "engines": {

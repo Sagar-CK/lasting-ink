@@ -1,87 +1,86 @@
-<img src="extension/icons/icon-128.png" width="48" height="48" alt="">
-
 # Lasting Ink
 
-A local PDF reader and webpage annotation extension for Arc and Chrome (Chromium 151+).
+A PDF reader for Chromium browsers. Highlight, draw and write on any PDF, and keep your notes with the file.
 
-The development build is **0.5.5**. Load the `extension/` folder to use it. The [last published release](https://github.com/Sagar-CK/lasting-ink/releases/tag/v0.4.1) predates the reader improvements below.
+[Install](#install) · [Use](#use) · [Build from source](#build-from-source)
+
+<p align="center">
+  <img src="docs/images/reader.png" alt="A paper's abstract with a highlight and a margin note, beside page thumbnails" width="49%">
+  <img src="docs/images/outline.png" alt="A table boxed and labelled, with the document outline open" width="49%">
+</p>
+
+- Opens PDFs in place of the browser's viewer. Links keep their URLs.
+- One highlighter: drag across text to highlight it, or anywhere else to draw a highlighter stroke.
+- Write text straight onto the page, draw, box and point with arrows. Every tool remembers its own colour and size.
+- A sidebar with page thumbnails, a collapsible outline with your bookmarks, a searchable list of your notes, and embedded files.
+- Find across every page, fill in forms, and recognize text in scanned PDFs on your device.
+- Download with your annotations drawn into the PDF, or download the original.
+- Reading position and zoom are remembered. Annotations follow the PDF across URLs and local copies.
+- Everything stays in your browser profile. No account, server or analytics.
 
 ## Install
 
-1. Keep the unpacked extension folder somewhere permanent.
-2. Open `chrome://extensions` and enable **Developer mode**.
-3. Choose **Load unpacked** and select `extension/` (or the extracted `lasting-ink/` folder).
-4. Reload a webpage or PDF. PDFs keep their original URLs.
+Requires a Chromium browser, version 151 or later, such as Chrome, Arc or Dia.
 
-## Read PDFs
+1. Build the extension (see [Build from source](#build-from-source)), or download a ZIP from [Releases](https://github.com/Sagar-CK/lasting-ink/releases) when one is published, and unzip it somewhere permanent.
+2. Open `chrome://extensions` and turn on **Developer mode**.
+3. Choose **Load unpacked** and select the `extension/` folder (or the unzipped `lasting-ink/` folder).
+4. Open any PDF link. The toolbar button opens an empty reader for local files.
 
-All reader icons, including PDF comment and attachment markers, use the same Lasting Ink SVG set. The toolbar, menus, and sidebar use a dark grey palette matching Chromium’s PDF viewer. White PDF pages sit on a charcoal reading background, with consistent spacing and light controls.
+To update, replace the folder and press reload on the extension's card. Removing the extension deletes its storage, so export a backup first.
 
-The page controls stay in the center of the top bar. Zoom and page-fit are on the left; annotation tools and document options are on the right.
+## Use
 
-- **Find** (`Cmd/Ctrl+F`) searches all pages, including pages that have not rendered yet.
-- **Sidebar** contains page thumbnails, the document outline, personal bookmarks, notes/highlights, and embedded files.
-- Links inside PDFs work. Form values save locally and are included in annotated downloads.
-- Reading position, zoom, page rotation, and two-page view are remembered. An explicit `#page=` link takes priority. Matching PDF fingerprints share annotations across URLs and local files.
-- **Document options** provides rotation, two-page view, presentation mode, OCR, printing, local-file opening, backup/import, and optional browser sync.
-- **Download with annotations** preserves the PDF's text and forms, draws marks into the pages, and adds comments as PDF note annotations. **Download original** leaves the source unchanged.
-- **Print** supports including or excluding Lasting Ink annotations. Printing renders the document at 144 DPI and preserves individual page sizes.
-- **Recognize scanned text** runs English OCR on this device. It adds searchable/selectable text in the reader without uploading the PDF. Existing text is kept. OCR language data is bundled, so it works offline.
-- **Open a local PDF** uses a file picker and stores that file in the browser's local cache so the tab can reopen.
+| Tool        | Key |
+| ----------- | --- |
+| Select      | V   |
+| Highlighter | H   |
+| Eraser      | E   |
+| Text        | T   |
+| Draw        | P   |
+| Rectangle   | R   |
+| Arrow       | A   |
 
-Pages render on demand using PDF.js. When the source provides a stream with a known size, PDF data loads progressively through a single request.
+Choosing the active tool again returns to Select. Draw, Rectangle and Arrow live under **⋯** in the toolbar.
 
-## Annotate
+- **Text:** click to place a box and type. Afterwards a click selects the box, dragging moves it, and a double-click (or Enter) edits it. Text sizes are 6, 8, 11 and 15 pt.
+- **Drawings:** select one to move it or drag its corner to resize. Arrow keys move it, Alt+Arrow resizes, Shift takes larger steps. Delete removes the selection.
+- **Undo:** `Cmd/Ctrl+Z`, redo with `Cmd/Ctrl+Shift+Z` (or `Ctrl+Y`).
+- **Navigate:** Left/Right arrows turn pages. `Cmd/Ctrl+F` finds text on every page. `Cmd` + scroll or a pinch zooms; `Cmd/Ctrl +/−/0` zooms from the keyboard.
+- **Save and print:** `Cmd/Ctrl+S` downloads with annotations and `Cmd/Ctrl+P` prints, with or without them.
 
-| Tool | Key |
-| --- | --- |
-| Select | V |
-| Highlight text | H |
-| Draw | P |
-| Highlighter | M |
-| Add comment | N |
-| Rectangle | R |
-| Arrow | A |
-| Eraser | E |
+**Document options** (the **⋯** at the far right) adds rotation, two-page view, presentation mode, text recognition, bookmarks, local files, backups and browser sync.
 
-Select a drawing to move it or use its corner handle to resize it. The Notes sidebar lets you recolor it, change stroke width, or delete it. Arrow keys move a selected drawing; Alt+Arrow resizes it; Shift uses larger steps. Text highlights support selections across rendered pages.
+## Privacy and storage
 
-`Cmd/Ctrl+Z` undoes annotations; `Cmd/Ctrl+Shift+Z` redoes them. `Ctrl+Y` also redoes on Windows/Linux. Inside text fields, normal editing shortcuts apply. Undo history lasts for the current visit.
+Annotations, reading position, form values and recognized text are saved in your browser profile. PDFs are read from the page you opened; nothing is uploaded. Text recognition runs on your device with bundled English data.
 
-**Cmd + scroll** (Ctrl + scroll on Windows/Linux) zooms the PDF; scroll up to zoom in and down to zoom out. Trackpad pinch also works.
+Browser sync is off by default. Turned on in Document options, it syncs annotations, reading state and bookmarks through your browser account. PDF contents, recognized text and form values are never synced. Large libraries can exceed the browser's sync quota; use **Export annotation backup** to move everything.
 
-**Left/Right arrows** go directly to the previous/next PDF page when reading. They keep their normal behavior in text fields and reader controls, while text is selected, or while an annotation is selected. Escape or a blank page click clears annotation selection. Presentation mode also accepts Up/Down and Page Up/Page Down.
-
-`Cmd/Ctrl +/−` zooms, `Cmd/Ctrl+0` resets zoom, `Cmd/Ctrl+S` saves an annotated PDF, and `Cmd/Ctrl+P` opens print options. Escape returns to selection mode. On webpages, the floating toolbar can be collapsed and reopened with the pen button.
-
-## Storage and portability
-
-Annotations, reading state, filled forms, and OCR results save in this browser profile. Export/import backup files to transfer annotations, reading state, and bookmarks. Imports merge by annotation identity and timestamps.
-
-Browser sync is **off by default**. Enable it in Document options to sync annotations, reading state, and bookmarks using `chrome.storage.sync`. It requires a browser/account configuration that actually supports sync; Arc's behavior may differ from Chrome. Large libraries can exceed the browser's sync quota; the reader reports this and keeps local data intact. Backups remain available for larger transfers. PDF contents, OCR text, and form fields are not sent through browser sync.
-
-Removing the extension clears its browser storage. Keep a backup if you need to reinstall.
+The extension asks only for `storage`.
 
 ## Limitations
 
-- OCR currently includes English only. Recognition accuracy depends on scan quality. The OCR text layer is stored for this reader; the original PDF is not rewritten with searchable OCR text.
-- Password-protected PDFs open after entering the password, which is not stored. If their encryption prevents vector editing, annotated export creates a flattened copy. Flattening removes interactive forms and searchable text from that exported copy.
-- PDF JavaScript/calculation scripts are not executed. Ordinary text, checkbox, radio, and selection fields are supported.
-- Exported drawing marks become page content. Original PDF comments remain interactive, and Lasting Ink comments export as PDF notes. Keep the backup if you want to continue editing drawn marks in Lasting Ink.
-- Major webpage layout changes may move freehand annotations. Browser settings pages cannot be annotated.
-- Manual screen-reader testing and additional real-world PDF compatibility testing remain useful beyond the automated fixtures.
+- Text recognition is English only. The recognized text works inside the reader; downloads don't include it.
+- Password-protected PDFs open after you enter the password, which is not stored. If the encryption blocks editing, the annotated download is a flattened image copy without forms or selectable text.
+- PDF scripts don't run. Text fields, checkboxes, radio buttons and lists work.
+- Drawings become part of the page in downloads. Text that Helvetica can't render is kept as a PDF comment instead. Keep a backup to continue editing in Lasting Ink.
 
-## Development
+## Build from source
 
-Node.js 22.22.2+, 24.15+, or 26+, and Python 3 for packaging.
+Requires Node.js 22.22.2+, 24.15+ or 26+, and Python 3 for packaging.
 
 ```sh
+git clone https://github.com/Sagar-CK/lasting-ink.git
+cd lasting-ink
 npm ci
-npm run build
+npm run build      # Icons, vendored PDF.js, OCR data and fonts into extension/
 npm test
-npm run package
+npm run package    # Installable ZIP in dist/
 ```
 
-The installable ZIP is written to `dist/`. All runtime code, fonts, OCR models, and licenses are bundled under `extension/`; the reader does not depend on remote script CDNs.
+`npm run demo -- path/to/file.pdf` serves the reader at `http://localhost:8765` without installing the extension. Annotations are kept in memory. See [Screenshots](docs/SCREENSHOTS.md) for the README captures.
 
-[Geist](https://github.com/vercel/geist-font) · [PDF.js](https://github.com/mozilla/pdf.js) · [pdf-lib](https://github.com/Hopding/pdf-lib) · [Tesseract.js](https://github.com/naptha/tesseract.js). Bundled licenses are under `extension/vendor/`.
+## License
+
+[MIT](LICENSE). Built with [PDF.js](https://github.com/mozilla/pdf.js), [pdf-lib](https://github.com/Hopding/pdf-lib), [Tesseract.js](https://github.com/naptha/tesseract.js) and [Geist](https://github.com/vercel/geist-font); their licenses are bundled in `extension/vendor/`.
